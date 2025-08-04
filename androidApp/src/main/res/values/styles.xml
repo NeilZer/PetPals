@@ -1,0 +1,15 @@
+<resources>
+
+    <!-- Theme הראשי של האפליקציה -->
+    <style name="Theme.PetPals" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:navigationBarColor">@color/white</item>
+    </style>
+
+    <!-- Theme למסך Splash -->
+    <style name="Theme.Splash" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
+
+</resources>
