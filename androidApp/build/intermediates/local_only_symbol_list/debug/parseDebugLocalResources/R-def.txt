@@ -10,6 +10,7 @@ drawable ic_logo
 drawable ic_map
 drawable ic_profile
 drawable ic_stats
+drawable logo_petpals
 drawable splash_screen
 id logoImage
 mipmap ic_launcher

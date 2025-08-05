@@ -1,27 +1,35 @@
 package com.example.petpals.ui.screens
 
 import android.Manifest
-import android.net.Uri
+import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun NewPostScreen(navController: NavHostController) {
@@ -32,106 +40,231 @@ fun NewPostScreen(navController: NavHostController) {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var isUploading by remember { mutableStateOf(false) }
     var location by remember { mutableStateOf<Location?>(null) }
+    var locationPermissionGranted by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // בחירת תמונה מהגלריה
+    val fusedLocationClient: FusedLocationProviderClient =
+        LocationServices.getFusedLocationProviderClient(context)
+
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         imageUri = uri
+        errorMessage = null
     }
 
-    // בקשת הרשאות למיקום
-    val fusedLocationClient: FusedLocationProviderClient =
-        LocationServices.getFusedLocationProviderClient(context)
-
-    LaunchedEffect(Unit) {
-        try {
-            fusedLocationClient.lastLocation.addOnSuccessListener { loc: Location? ->
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        locationPermissionGranted = isGranted
+        if (isGranted) {
+            getCurrentLocation(fusedLocationClient) { loc ->
                 location = loc
             }
-        } catch (_: SecurityException) { }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        when (ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )) {
+            PackageManager.PERMISSION_GRANTED -> {
+                locationPermissionGranted = true
+                getCurrentLocation(fusedLocationClient) { loc ->
+                    location = loc
+                }
+            }
+            else -> {
+                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+        }
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text("פוסט חדש", style = MaterialTheme.typography.headlineMedium)
+
+        Spacer(modifier = Modifier.height(24.dp))
+
         OutlinedTextField(
             value = text,
-            onValueChange = { text = it },
-            label = { Text("What's on your pet's mind?") },
-            modifier = Modifier.fillMaxWidth()
+            onValueChange = {
+                text = it
+                errorMessage = null
+            },
+            label = { Text("מה חיית המחמד שלך עושה היום?") },
+            modifier = Modifier.fillMaxWidth(),
+            minLines = 3,
+            maxLines = 5
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { imagePickerLauncher.launch("image/*") }) {
-            Text("Pick an Image")
+        Button(
+            onClick = { imagePickerLauncher.launch("image/*") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("בחר תמונה")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        imageUri?.let {
-            Image(
-                painter = rememberAsyncImagePainter(it),
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth().height(200.dp)
+        imageUri?.let { uri ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(uri),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                Icons.Default.LocationOn,
+                contentDescription = "מיקום",
+                tint = if (location != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = when {
+                    location != null -> "מיקום נוסף לפוסט ✓"
+                    locationPermissionGranted -> "מחפש מיקום..."
+                    else -> "אין הרשאת מיקום"
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (location != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        if (!locationPermissionGranted) {
+            Spacer(modifier = Modifier.height(8.dp))
+            TextButton(onClick = {
+                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }) {
+                Text("אפשר הרשאת מיקום")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
                 if (text.isNotEmpty() && imageUri != null && !isUploading) {
                     coroutineScope.launch {
                         isUploading = true
-                        uploadPost(text, imageUri!!, location, {
+                        errorMessage = null
+                        try {
+                            uploadPost(text, imageUri!!, location)
+                            navController.popBackStack()
+                        } catch (e: Exception) {
+                            errorMessage = "שגיאה בפרסום הפוסט: ${e.message}"
+                            Log.e("NEW_POST", "Error uploading post", e)
+                        } finally {
                             isUploading = false
-                            navController.popBackStack() // חזרה לפיד
-                        }, {
-                            isUploading = false
-                        })
+                        }
+                    }
+                } else {
+                    errorMessage = when {
+                        text.isEmpty() -> "יש להוסיף טקסט לפוסט"
+                        imageUri == null -> "יש לבחור תמונה"
+                        else -> "שגיאה לא ידועה"
                     }
                 }
             },
-            enabled = !isUploading
+            enabled = !isUploading && text.isNotEmpty() && imageUri != null,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (isUploading) "Uploading..." else "Post")
+            if (isUploading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            Text(if (isUploading) "מפרסם..." else "פרסם")
+        }
+
+        errorMessage?.let { message ->
+            Spacer(modifier = Modifier.height(16.dp))
+            Card(colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer
+            )) {
+                Text(
+                    text = message,
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
         }
     }
 }
 
-// פונקציה להעלאת פוסט ל-Firebase
-fun uploadPost(
-    text: String,
-    imageUri: Uri,
-    location: Location?,
-    onComplete: () -> Unit,
-    onError: (Exception) -> Unit = {}
+fun getCurrentLocation(
+    fusedLocationClient: FusedLocationProviderClient,
+    onLocationReceived: (Location?) -> Unit
 ) {
-    val user = FirebaseAuth.getInstance().currentUser ?: return
-    val userId = user.uid
-    val storageRef = FirebaseStorage.getInstance().reference.child("posts/${System.currentTimeMillis()}.jpg")
-    val db = FirebaseFirestore.getInstance()
-
-    storageRef.putFile(imageUri)
-        .addOnSuccessListener {
-            storageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
-                val post = hashMapOf(
-                    "userId" to userId,
-                    "userName" to (user.displayName ?: "Pet Lover"),
-                    "text" to text,
-                    "imageUrl" to downloadUrl.toString(),
-                    "likes" to 0,
-                    "timestamp" to com.google.firebase.Timestamp.now(),
-                    "location" to location?.let { GeoPoint(it.latitude, it.longitude) }
-                )
-
-                db.collection("posts").add(post)
-                    .addOnSuccessListener { onComplete() }
-                    .addOnFailureListener { e -> onError(e) }
-            }.addOnFailureListener { e -> onError(e) }
+    try {
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            onLocationReceived(location)
+        }.addOnFailureListener { exception ->
+            Log.e("NEW_POST", "Error getting location", exception)
+            onLocationReceived(null)
         }
-        .addOnFailureListener { e -> onError(e) }
+    } catch (e: SecurityException) {
+        Log.e("NEW_POST", "Location permission not granted", e)
+        onLocationReceived(null)
+    }
+}
+
+// ✅ העלאת פוסט מעודכנת: שומר גם ב-posts וגם ב-users/{uid}/myPosts
+suspend fun uploadPost(text: String, imageUri: Uri, location: Location?) {
+    val user = FirebaseAuth.getInstance().currentUser ?: throw Exception("משתמש לא מחובר")
+    val userId = user.uid
+    val db = FirebaseFirestore.getInstance()
+    val storage = FirebaseStorage.getInstance()
+
+    try {
+        val imageRef = storage.reference.child("posts/${userId}_${System.currentTimeMillis()}.jpg")
+        imageRef.putFile(imageUri).await()
+        val downloadUrl = imageRef.downloadUrl.await()
+
+        val postData = hashMapOf(
+            "userId" to userId,
+            "text" to text,
+            "imageUrl" to downloadUrl.toString(),
+            "likes" to 0,
+            "timestamp" to Timestamp.now(),
+            "location" to location?.let { GeoPoint(it.latitude, it.longitude) }
+        )
+
+        val postRef = db.collection("posts").add(postData).await()
+
+        db.collection("users").document(userId)
+            .collection("myPosts")
+            .document(postRef.id)
+            .set(postData)
+            .await()
+
+        Log.d("NEW_POST", "Post uploaded and linked to user profile")
+
+    } catch (e: Exception) {
+        Log.e("NEW_POST", "Error uploading post", e)
+        throw e
+    }
 }

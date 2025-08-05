@@ -4,17 +4,15 @@
     <!-- רקע בצבע בז' -->
     <item android:drawable="@color/ic_launcher_background" />
 
-    <!-- הלוגו במרכז עם שוליים מדומים -->
-    <item
-        android:top="48dp"
-        android:bottom="48dp"
-        android:left="48dp"
-        android:right="48dp">
+    <item>
         <bitmap
             android:gravity="center"
             android:antialias="true"
             android:filter="true"
-            android:src="@drawable/ic_logo"/>
+            android:src="@drawable/ic_logo"
+            android:width="160dp"
+            android:height="160dp"/>
     </item>
+
 
 </layer-list>

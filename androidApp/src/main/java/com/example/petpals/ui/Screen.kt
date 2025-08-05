@@ -10,4 +10,6 @@ sealed class Screen(val route: String, val title: String) {
     object Profile : Screen("profile", "Profile")
     object EditProfile : Screen("editProfile", "Edit Profile") // ✅ הוספנו
     object Statistics : Screen("statistics", "Statistics")
+    object PostDetail : Screen("postDetail", "Post Detail")
+
 }

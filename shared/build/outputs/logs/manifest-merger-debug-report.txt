@@ -1,16 +1,16 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest14709773094098720333.xml:2:13-83
-INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest14709773094098720333.xml:2:13-83
+ADDED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2332820859102717437.xml:2:13-83
+INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2332820859102717437.xml:2:13-83
 	package
-		INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest14709773094098720333.xml
+		INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2332820859102717437.xml
 	xmlns:android
-		ADDED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest14709773094098720333.xml:2:23-81
+		ADDED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2332820859102717437.xml:2:23-81
 uses-sdk
-INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest14709773094098720333.xml reason: use-sdk injection requested
-INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest14709773094098720333.xml
-INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest14709773094098720333.xml
+INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2332820859102717437.xml reason: use-sdk injection requested
+INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2332820859102717437.xml
+INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2332820859102717437.xml
 	android:targetSdkVersion
-		INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest14709773094098720333.xml
+		INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2332820859102717437.xml
 	android:minSdkVersion
-		INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest14709773094098720333.xml
+		INJECTED from C:\Users\reute\AndroidStudioProjects\PetPals_0.3\shared\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2332820859102717437.xml
