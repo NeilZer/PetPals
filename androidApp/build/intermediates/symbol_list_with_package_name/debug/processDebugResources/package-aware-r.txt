@@ -3018,6 +3018,7 @@ drawable ic_password
 drawable ic_profile
 drawable ic_search_black_24
 drawable ic_stats
+drawable logo_petpals
 drawable m3_avd_hide_password
 drawable m3_avd_show_password
 drawable m3_bottom_sheet_drag_handle
