@@ -1,0 +1,16 @@
+/* 
+  Localizable(en).strings
+  PetPals
+
+  Created by mymac on 11/08/2025.
+  
+*/
+"בית" = "Home";"ברוכים הבאים ל-PetPals!" = "Welcome to PetPals!";
+"עדיין אין פוסטים בפיד" = "No posts in the feed yet";
+"פרופיל" = "Profile";
+"מפה" = "Map";
+"נתונים" = "Stats";
+"בית" = "Home";
+"מחיקת פוסט" = "Delete Post";
+"מחק" = "Delete";
+"ביטול" = "Cancel";
