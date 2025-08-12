@@ -10,7 +10,6 @@
 		1F003B4C2E4612CD003F4E67 /* AuthenticationViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F003B422E4612CD003F4E67 /* AuthenticationViews.swift */; };
 		1F003B4D2E4612CD003F4E67 /* MainAppStructure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F003B452E4612CD003F4E67 /* MainAppStructure.swift */; };
 		1F003B4F2E4612CD003F4E67 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F003B462E4612CD003F4E67 /* MapView.swift */; };
-		1F003B512E4612CD003F4E67 /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F003B4B2E4612CD003F4E67 /* StatisticsView.swift */; };
 		1F003B532E4612CD003F4E67 /* FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F003B442E4612CD003F4E67 /* FeedView.swift */; };
 		1F003B542E4612CD003F4E67 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F003B4A2E4612CD003F4E67 /* ProfileView.swift */; };
 		1F003B552E4612CD003F4E67 /* NewPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F003B482E4612CD003F4E67 /* NewPostView.swift */; };
@@ -18,15 +17,16 @@
 		1F003B5C2E461883003F4E67 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 1F003B5B2E461883003F4E67 /* FirebaseDatabase */; };
 		1F003B5E2E461883003F4E67 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 1F003B5D2E461883003F4E67 /* FirebaseFirestore */; };
 		1F003B602E461883003F4E67 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F003B5F2E461883003F4E67 /* FirebaseStorage */; };
-		1F003B6B2E463F4A003F4E67 /* FInalSetup.swift in Resources */ = {isa = PBXBuildFile; fileRef = 1F003B6A2E463F49003F4E67 /* FInalSetup.swift */; };
 		1F6C400D2E4A0268004E7770 /* PostDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6C400C2E4A0268004E7770 /* PostDeletionService.swift */; };
 		1F6C400F2E4A030B004E7770 /* LocalizedBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6C400E2E4A030B004E7770 /* LocalizedBundle.swift */; };
-		1F6C40152E4A04F4004E7770 /* Localizable(en).strings in Resources */ = {isa = PBXBuildFile; fileRef = 1F6C40132E4A04F4004E7770 /* Localizable(en).strings */; };
-		1F6C40182E4A0537004E7770 /* Localizable(he).strings in Resources */ = {isa = PBXBuildFile; fileRef = 1F6C40162E4A0537004E7770 /* Localizable(he).strings */; };
 		1F6C401A2E4A0A57004E7770 /* MyPostsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6C40192E4A0A57004E7770 /* MyPostsManager.swift */; };
+		1F6C40322E4AA10A004E7770 /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6C40312E4AA10A004E7770 /* LanguageManager.swift */; };
+		1F6C40352E4AA4A2004E7770 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1F6C40332E4AA4A2004E7770 /* Localizable.strings */; };
+		1F6C40392E4AAE40004E7770 /* FInalSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F003B6A2E463F49003F4E67 /* FInalSetup.swift */; };
+		1F6C40422E4B2F58004E7770 /* StatisticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6C40412E4B2F58004E7770 /* StatisticsManager.swift */; };
+		1F6C40442E4B2F6A004E7770 /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6C40432E4B2F6A004E7770 /* StatisticsView.swift */; };
 		1F8A68182E49525D000AB9B2 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8A68172E495259000AB9B2 /* Models.swift */; };
 		1F8A681A2E495310000AB9B2 /* MyPostsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8A68192E495310000AB9B2 /* MyPostsView.swift */; };
-		1F8A68202E495413000AB9B2 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8A681F2E495413000AB9B2 /* AppConstants.swift */; };
 		1F8A68222E495DF1000AB9B2 /* MapManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8A68212E495DF1000AB9B2 /* MapManager.swift */; };
 		1F8A68242E495E02000AB9B2 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8A68232E495E01000AB9B2 /* LocationManager.swift */; };
 /* End PBXBuildFile section */
@@ -58,36 +58,25 @@
 		1F003B462E4612CD003F4E67 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		1F003B482E4612CD003F4E67 /* NewPostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPostView.swift; sourceTree = "<group>"; };
 		1F003B4A2E4612CD003F4E67 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
-		1F003B4B2E4612CD003F4E67 /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; sourceTree = "<group>"; };
 		1F003B6A2E463F49003F4E67 /* FInalSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FInalSetup.swift; sourceTree = "<group>"; };
 		1F6C400C2E4A0268004E7770 /* PostDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDeletionService.swift; sourceTree = "<group>"; };
 		1F6C400E2E4A030B004E7770 /* LocalizedBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizedBundle.swift; sourceTree = "<group>"; };
-		1F6C40142E4A04F4004E7770 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = "en.lproj/Localizable(en).strings"; sourceTree = "<group>"; };
-		1F6C40172E4A0537004E7770 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = "en.lproj/Localizable(he).strings"; sourceTree = "<group>"; };
 		1F6C40192E4A0A57004E7770 /* MyPostsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPostsManager.swift; sourceTree = "<group>"; };
+		1F6C40312E4AA10A004E7770 /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
+		1F6C40342E4AA4A2004E7770 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		1F6C40362E4AA709004E7770 /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Localizable.strings; sourceTree = "<group>"; };
+		1F6C40372E4AABD7004E7770 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1F6C40412E4B2F58004E7770 /* StatisticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsManager.swift; sourceTree = "<group>"; };
+		1F6C40432E4B2F6A004E7770 /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; sourceTree = "<group>"; };
 		1F8A68172E495259000AB9B2 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		1F8A68192E495310000AB9B2 /* MyPostsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPostsView.swift; sourceTree = "<group>"; };
-		1F8A681F2E495413000AB9B2 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		1F8A68212E495DF1000AB9B2 /* MapManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapManager.swift; sourceTree = "<group>"; };
 		1F8A68232E495E01000AB9B2 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		1F8A682A2E497390000AB9B2 /* Exceptions for "PetPals" folder in "PetPals" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 1F003B172E461246003F4E67 /* PetPals */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1F003B1A2E461246003F4E67 /* PetPals */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				1F8A682A2E497390000AB9B2 /* Exceptions for "PetPals" folder in "PetPals" target */,
-			);
 			path = PetPals;
 			sourceTree = "<group>";
 		};
@@ -135,14 +124,16 @@
 		1F003B0F2E461246003F4E67 = {
 			isa = PBXGroup;
 			children = (
+				1F6C40432E4B2F6A004E7770 /* StatisticsView.swift */,
+				1F6C40412E4B2F58004E7770 /* StatisticsManager.swift */,
+				1F6C40372E4AABD7004E7770 /* Info.plist */,
+				1F6C40332E4AA4A2004E7770 /* Localizable.strings */,
+				1F6C40312E4AA10A004E7770 /* LanguageManager.swift */,
 				1F6C40192E4A0A57004E7770 /* MyPostsManager.swift */,
-				1F6C40162E4A0537004E7770 /* Localizable(he).strings */,
-				1F6C40132E4A04F4004E7770 /* Localizable(en).strings */,
 				1F6C400E2E4A030B004E7770 /* LocalizedBundle.swift */,
 				1F6C400C2E4A0268004E7770 /* PostDeletionService.swift */,
 				1F8A68232E495E01000AB9B2 /* LocationManager.swift */,
 				1F8A68212E495DF1000AB9B2 /* MapManager.swift */,
-				1F8A681F2E495413000AB9B2 /* AppConstants.swift */,
 				1F8A68192E495310000AB9B2 /* MyPostsView.swift */,
 				1F8A68172E495259000AB9B2 /* Models.swift */,
 				1F003B1A2E461246003F4E67 /* PetPals */,
@@ -155,7 +146,6 @@
 				1F003B462E4612CD003F4E67 /* MapView.swift */,
 				1F003B482E4612CD003F4E67 /* NewPostView.swift */,
 				1F003B4A2E4612CD003F4E67 /* ProfileView.swift */,
-				1F003B4B2E4612CD003F4E67 /* StatisticsView.swift */,
 				1F003B6A2E463F49003F4E67 /* FInalSetup.swift */,
 			);
 			sourceTree = "<group>";
@@ -274,6 +264,7 @@
 			knownRegions = (
 				en,
 				Base,
+				he,
 			);
 			mainGroup = 1F003B0F2E461246003F4E67;
 			minimizedProjectReferenceProxies = 1;
@@ -297,9 +288,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F6C40152E4A04F4004E7770 /* Localizable(en).strings in Resources */,
-				1F003B6B2E463F4A003F4E67 /* FInalSetup.swift in Resources */,
-				1F6C40182E4A0537004E7770 /* Localizable(he).strings in Resources */,
+				1F6C40352E4AA4A2004E7770 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,20 +313,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F6C40392E4AAE40004E7770 /* FInalSetup.swift in Sources */,
 				1F8A68182E49525D000AB9B2 /* Models.swift in Sources */,
 				1F6C400F2E4A030B004E7770 /* LocalizedBundle.swift in Sources */,
 				1F8A681A2E495310000AB9B2 /* MyPostsView.swift in Sources */,
 				1F003B4C2E4612CD003F4E67 /* AuthenticationViews.swift in Sources */,
 				1F003B4D2E4612CD003F4E67 /* MainAppStructure.swift in Sources */,
 				1F003B4F2E4612CD003F4E67 /* MapView.swift in Sources */,
-				1F003B512E4612CD003F4E67 /* StatisticsView.swift in Sources */,
 				1F003B532E4612CD003F4E67 /* FeedView.swift in Sources */,
-				1F8A68202E495413000AB9B2 /* AppConstants.swift in Sources */,
 				1F8A68242E495E02000AB9B2 /* LocationManager.swift in Sources */,
 				1F8A68222E495DF1000AB9B2 /* MapManager.swift in Sources */,
 				1F6C401A2E4A0A57004E7770 /* MyPostsManager.swift in Sources */,
 				1F6C400D2E4A0268004E7770 /* PostDeletionService.swift in Sources */,
+				1F6C40322E4AA10A004E7770 /* LanguageManager.swift in Sources */,
 				1F003B542E4612CD003F4E67 /* ProfileView.swift in Sources */,
+				1F6C40442E4B2F6A004E7770 /* StatisticsView.swift in Sources */,
+				1F6C40422E4B2F58004E7770 /* StatisticsManager.swift in Sources */,
 				1F003B552E4612CD003F4E67 /* NewPostView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -372,20 +363,13 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		1F6C40132E4A04F4004E7770 /* Localizable(en).strings */ = {
+		1F6C40332E4AA4A2004E7770 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				1F6C40142E4A04F4004E7770 /* en */,
+				1F6C40342E4AA4A2004E7770 /* en */,
+				1F6C40362E4AA709004E7770 /* he */,
 			);
-			name = "Localizable(en).strings";
-			sourceTree = "<group>";
-		};
-		1F6C40162E4A0537004E7770 /* Localizable(he).strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				1F6C40172E4A0537004E7770 /* en */,
-			);
-			name = "Localizable(he).strings";
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -396,6 +380,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -459,6 +444,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -520,10 +506,12 @@
 				DEVELOPMENT_TEAM = K8J3WL9Z64;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = PetPals/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "האפליקציה משתמשת במיקום כדי להציג פוסטים באזור שלך ולנווט למיקומך";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "";
+				INFOPLIST_FILE = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = Yes;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = Yes;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = Yes;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = Yes;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = Yes;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -534,6 +522,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				NEW_SETTING = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.reut.PetPals;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -552,10 +541,12 @@
 				DEVELOPMENT_TEAM = K8J3WL9Z64;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = PetPals/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "האפליקציה משתמשת במיקום כדי להציג פוסטים באזור שלך ולנווט למיקומך";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "";
+				INFOPLIST_FILE = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = Yes;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = Yes;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = Yes;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = Yes;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = Yes;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -566,6 +557,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				NEW_SETTING = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.reut.PetPals;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

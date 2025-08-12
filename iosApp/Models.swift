@@ -358,10 +358,6 @@ extension Date {
     }
 }
 
-func timeAgo(_ timestamp: Double) -> String {
-    let date = Date(timeIntervalSince1970: timestamp)
-    return date.timeAgo
-}
 
 // MARK: - Custom Text Field Style
 struct PetPalsTextFieldStyle: TextFieldStyle {

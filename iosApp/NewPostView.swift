@@ -18,6 +18,9 @@ struct NewPostView: View {
     @State private var errorMessage: String?
     @State private var includeLocation = true
 
+    // מצלמה
+    @State private var showCamera = false
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -25,28 +28,66 @@ struct NewPostView: View {
                     // Title
                     VStack {
                         Text("🐾").font(.system(size: 40))
-                        Text("פוסט חדש").font(.title2).bold()
+                        Text("newpost.title").font(.title2).bold()
                     }
                     .frame(maxWidth: .infinity)
 
-                    // Text
+                    // Text (כיתוב לא חובה)
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("מה חיית המחמד שלך עושה היום?").font(.headline)
-                        TextEditor(text: $text)
-                            .frame(minHeight: 120)
-                            .padding(8)
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(8)
+                        Text("newpost.caption.label").font(.headline)
+                        ZStack(alignment: .topLeading) {
+                            if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                Text("newpost.caption.placeholder")
+                                    .foregroundColor(.secondary)
+                                    .padding(.top, 14)
+                                    .padding(.leading, 12)
+                            }
+                            TextEditor(text: $text)
+                                .frame(minHeight: 120)
+                                .padding(8)
+                                .background(Color.gray.opacity(0.1))
+                                .cornerRadius(8)
+                        }
                     }
 
                     // Image
                     VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text("תמונה").font(.headline)
+                        HStack(spacing: 12) {
+                            Text("newpost.media.title").font(.headline)
                             Spacer()
-                            PhotosPicker(selection: $selectedItem, matching: .images, photoLibrary: .shared()) {
-                                HStack { Image(systemName: "photo.badge.plus"); Text("בחר תמונה") }
-                                    .foregroundColor(.logoBrown)
+
+                            // גלריה
+                            PhotosPicker(
+                                selection: $selectedItem,
+                                matching: .images,
+                                photoLibrary: .shared()
+                            ) {
+                                HStack {
+                                    Image(systemName: "photo.on.rectangle")
+                                    Text("newpost.pick.gallery")
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color.gray.opacity(0.15))
+                                .cornerRadius(8)
+                            }
+
+                            // מצלמה
+                            Button {
+                                if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                                    showCamera = true
+                                } else {
+                                    errorMessage = String(localized: "errors.camera.unavailable")
+                                }
+                            } label: {
+                                HStack {
+                                    Image(systemName: "camera")
+                                    Text("newpost.pick.camera")
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color.gray.opacity(0.15))
+                                .cornerRadius(8)
                             }
                         }
 
@@ -76,12 +117,15 @@ struct NewPostView: View {
                             do {
                                 if let data = try await newItem.loadTransferable(type: Data.self),
                                    let uiImage = UIImage(data: data) {
-                                    await MainActor.run { selectedImage = uiImage; errorMessage = nil }
+                                    await MainActor.run {
+                                        selectedImage = uiImage
+                                        errorMessage = nil
+                                    }
                                 } else {
-                                    await MainActor.run { errorMessage = "לא ניתן לטעון את התמונה" }
+                                    await MainActor.run { errorMessage = String(localized: "errors.image.load_failed") }
                                 }
                             } catch {
-                                await MainActor.run { errorMessage = "כשל בטעינת תמונה: \(error.localizedDescription)" }
+                                await MainActor.run { errorMessage = String(localized: "errors.image.decode_failed") + ": \(error.localizedDescription)" }
                             }
                         }
                     }
@@ -89,29 +133,13 @@ struct NewPostView: View {
                     // Location
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            Text("מיקום").font(.headline)
+                            Text("newpost.location.title").font(.headline)
                             Spacer()
-                            Toggle("כלול מיקום", isOn: $includeLocation)
+                            Toggle("newpost.include_location", isOn: $includeLocation)
                         }
 
                         if includeLocation {
-                            HStack {
-                                Image(systemName: "location.fill").foregroundColor(locationStatusColor)
-                                Text(locationStatusText).foregroundColor(locationStatusColor)
-                                Spacer()
-                                if locationManager.authorizationStatus == .denied {
-                                    Button("הפעל מיקום") {
-                                        if let url = URL(string: UIApplication.openSettingsURLString) {
-                                            UIApplication.shared.open(url)
-                                        }
-                                    }
-                                    .font(.caption)
-                                    .foregroundColor(.logoBrown)
-                                }
-                            }
-                            .padding()
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(8)
+                            HBoxLocationStatus
                         }
                     }
 
@@ -119,7 +147,8 @@ struct NewPostView: View {
                     Button(action: publishPost) {
                         HStack {
                             if isUploading { ProgressView().scaleEffect(0.9) }
-                            Text(isUploading ? "מפרסם..." : "פרסם").fontWeight(.medium)
+                            Text(isUploading ? String(localized: "newpost.publishing") : String(localized: "common.post"))
+                                .fontWeight(.medium)
                         }
                         .frame(maxWidth: .infinity, minHeight: 50)
                         .background(canPublish ? Color.logoBrown : Color.gray)
@@ -141,9 +170,17 @@ struct NewPostView: View {
                 }
                 .padding()
             }
-            .navigationTitle("פוסט חדש")
+            .navigationTitle(Text("newpost.title"))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .topBarLeading) { Button("בטל") { dismiss() } } }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("common.cancel") { dismiss() }
+                }
+            }
+            // מצלמה
+            .sheet(isPresented: $showCamera) {
+                CameraPicker(image: $selectedImage)
+            }
         }
         .onAppear { if includeLocation { locationManager.requestLocationPermission() } }
         .onChange(of: includeLocation) { newValue in
@@ -151,13 +188,38 @@ struct NewPostView: View {
         }
     }
 
+    // MARK: - Location Helpers
+    private var HBoxLocationStatus: some View {
+        HStack {
+            Image(systemName: "location.fill").foregroundColor(locationStatusColor)
+            Text(locationStatusText).foregroundColor(locationStatusColor)
+            Spacer()
+            if locationManager.authorizationStatus == .denied {
+                Button("newpost.location.enable") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                .font(.caption)
+                .foregroundColor(.logoBrown)
+            }
+        }
+        .padding()
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(8)
+    }
+
     // MARK: - Helpers
     private var locationStatusText: String {
         switch locationManager.authorizationStatus {
-        case .denied, .restricted: return "אין הרשאת מיקום"
+        case .denied, .restricted:
+            return String(localized: "errors.location.denied")
         case .authorizedWhenInUse, .authorizedAlways:
-            return locationManager.location != nil ? "מיקום נוסף לפוסט ✓" : "מחפש מיקום..."
-        default: return "מחפש מיקום..."
+            return locationManager.location != nil
+            ? String(localized: "newpost.location.attached")
+            : String(localized: "map.searching_location")
+        default:
+            return String(localized: "map.searching_location")
         }
     }
     private var locationStatusColor: Color {
@@ -187,7 +249,7 @@ struct NewPostView: View {
                 await MainActor.run { isUploading = false; dismiss() }
             } catch {
                 await MainActor.run {
-                    errorMessage = "שגיאה בפרסום הפוסט: \(error.localizedDescription)"
+                    errorMessage = String(localized: "errors.post.publish_failed") + ": \(error.localizedDescription)"
                     isUploading = false
                 }
             }
@@ -198,22 +260,29 @@ struct NewPostView: View {
         let storage = Storage.storage()
         let db = Firestore.firestore()
 
-        guard let imageData = image.jpegData(compressionQuality: 0.85) else {
+        guard let data = image.jpegData(compressionQuality: 0.85) else {
             throw NSError(domain: "ImageError", code: 0,
-                          userInfo: [NSLocalizedDescriptionKey: "כשל בדחיסת תמונה"])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "errors.image.compress_failed")])
         }
 
-        let filename = "posts/\(userId)_\(Int(Date().timeIntervalSince1970)).jpg"
-        let imageRef = storage.reference().child(filename)
-        let meta = StorageMetadata(); meta.contentType = "image/jpeg"
+        // מסמך מראש כדי להשתמש ב-id לשם הקובץ
+        let postRef = db.collection("posts").document()
+        let postId = postRef.documentID
 
-        _ = try await imageRef.putDataAsync(imageData, metadata: meta)
-        let downloadURL = try await imageRef.downloadURL()
+        // נתיב: postImages/{uid}/{postId}.jpg
+        let imageRef = storage.reference(withPath: "postImages/\(userId)/\(postId).jpg")
+
+        let meta = StorageMetadata()
+        meta.contentType = "image/jpeg"
+        meta.customMetadata = ["userId": userId]
+
+        _ = try await imageRef.putDataAsync(data, metadata: meta)
+        let url = try await imageRef.downloadURL()
 
         var postData: [String: Any] = [
             "userId": userId,
             "text": text.trimmingCharacters(in: .whitespacesAndNewlines),
-            "imageUrl": downloadURL.absoluteString,
+            "imageUrl": url.absoluteString,
             "timestamp": Date().timeIntervalSince1970,
             "likes": 0,
             "likedBy": []
@@ -225,7 +294,7 @@ struct NewPostView: View {
             try? await addLocationAddress(to: &postData, location: location)
         }
 
-        _ = try await db.collection("posts").addDocument(data: postData)
+        try await postRef.setData(postData)
 
         if let location {
             try await db.collection("users").document(userId).updateData([
@@ -241,9 +310,9 @@ struct NewPostView: View {
         let placemarks = try await geocoder.reverseGeocodeLocation(location)
         if let p = placemarks.first {
             var parts: [String] = []
-            if let name = p.name { parts.append(name) }
-            if let loc = p.locality { parts.append(loc) }
-            if let country = p.country { parts.append(country) }
+            if let name = p.name      { parts.append(name) }
+            if let city = p.locality  { parts.append(city) }
+            if let country = p.country{ parts.append(country) }
             if !parts.isEmpty { postData["locationName"] = parts.joined(separator: ", ") }
         }
     }
@@ -291,65 +360,37 @@ final class NewPostLocationManager: NSObject, ObservableObject, CLLocationManage
         DispatchQueue.main.async { self.location = nil }
     }
 }
-import CoreLocation
 
-// אפשר לשים מחוץ ל-struct NewPostView, באותו קובץ:
-private func addLocationAddress(to postData: inout [String: Any], location: CLLocation) async throws {
-    let geocoder = CLGeocoder()
-    // שימי לב: ה-API האסינכרוני דורש iOS 15+
-    let placemarks = try await geocoder.reverseGeocodeLocation(location)
-    if let p = placemarks.first {
-        var parts: [String] = []
-        if let name = p.name { parts.append(name) }
-        if let loc = p.locality { parts.append(loc) }
-        if let country = p.country { parts.append(country) }
-        if !parts.isEmpty {
-            postData["locationName"] = parts.joined(separator: ", ")
+// MARK: - Camera Picker (UIKit)
+struct CameraPicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        let parent: CameraPicker
+        init(_ parent: CameraPicker) { self.parent = parent }
+
+        func imagePickerController(_ picker: UIImagePickerController,
+                                   didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            let img = (info[.editedImage] ?? info[.originalImage]) as? UIImage
+            parent.image = img
+            picker.dismiss(animated: true)
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            picker.dismiss(animated: true)
         }
     }
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.allowsEditing = true
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
 }
 
-private func uploadPost(userId: String, text: String, image: UIImage, location: CLLocation?) async throws {
-    let storage = Storage.storage()
-    let db = Firestore.firestore()
-
-    guard let imageData = image.jpegData(compressionQuality: 0.85) else {
-        throw NSError(domain: "ImageError", code: 0,
-                      userInfo: [NSLocalizedDescriptionKey: "כשל בדחיסת תמונה"])
-    }
-
-    let filename = "posts/\(userId)_\(Int(Date().timeIntervalSince1970)).jpg"
-    let imageRef = storage.reference().child(filename)
-    let meta = StorageMetadata(); meta.contentType = "image/jpeg"
-
-    _ = try await imageRef.putDataAsync(imageData, metadata: meta)
-    let downloadURL = try await imageRef.downloadURL()
-
-    var postData: [String: Any] = [
-        "userId": userId,
-        "text": text.trimmingCharacters(in: .whitespacesAndNewlines),
-        "imageUrl": downloadURL.absoluteString,
-        "timestamp": Date().timeIntervalSince1970,
-        "likes": 0,
-        "likedBy": []
-    ]
-
-    if let location {
-        postData["location"] = GeoPoint(latitude: location.coordinate.latitude,
-                                        longitude: location.coordinate.longitude)
-        postData["hasLocation"] = true   // ✅ חדש: דגל לזיהוי מהיר של פוסטים עם מיקום
-        try? await addLocationAddress(to: &postData, location: location)
-    } else {
-        postData["hasLocation"] = false
-    }
-
-    _ = try await db.collection("posts").addDocument(data: postData)
-
-    if let location {
-        try await db.collection("users").document(userId).updateData([
-            "location": GeoPoint(latitude: location.coordinate.latitude,
-                                 longitude: location.coordinate.longitude),
-            "lastLocationUpdate": Date().timeIntervalSince1970
-        ])
-    }
-}

@@ -18,16 +18,16 @@ struct FeedView: View {
                 if feedManager.posts.isEmpty && !feedManager.isLoading {
                     VStack(spacing: 16) {
                         Text("🐾").font(.system(size: 48))
-                        Text("ברוכים הבאים ל-PetPals!").font(.title2).bold()
-                        Text("עדיין אין פוסטים בפיד").foregroundColor(.secondary)
-                        Text("התחילו לשתף את הרגעים המיוחדים עם חיות המחמד שלכם!")
-                            .foregroundColor(.secondary)
+                        Text("feed.empty.title").font(.title2).bold()
+                        Text("feed.empty.subtitle").foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
+                        Button("feed.empty.cta") { showNewPost = true }
+                            .buttonStyle(.borderedProminent)
                     }
                     .padding()
                 } else if feedManager.isLoading && feedManager.posts.isEmpty {
-                    ProgressView("טוען פוסטים...")
+                    ProgressView("feed.loading")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ScrollView {
@@ -36,8 +36,12 @@ struct FeedView: View {
                                 FeedPostCard(
                                     post: post,
                                     onDeleted: { feedManager.removePostLocally(post.id) },
-                                    onLikeChanged: { feedManager.refreshPosts() },
-                                    onAskDelete: { p in postPendingDelete = p }   // ← בקשת מחיקה
+                                    onLikeChanged: {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                                            feedManager.refreshPosts()
+                                        }
+                                    },
+                                    onAskDelete: { p in postPendingDelete = p }
                                 )
                             }
                         }
@@ -65,7 +69,7 @@ struct FeedView: View {
                     }
                 }
             }
-            .navigationTitle("PetPals")
+            .navigationTitle(Text("feed.title"))
             .task { feedManager.refreshPosts() }
             .sheet(isPresented: $showNewPost) {
                 NewPostView()
@@ -73,14 +77,14 @@ struct FeedView: View {
             }
             // דיאלוג מחיקה – ברמת המסך
             .confirmationDialog(
-                "למחוק את הפוסט?",
+                String(localized: "feed.delete.title"),
                 isPresented: Binding(
                     get: { postPendingDelete != nil },
                     set: { if !$0 { postPendingDelete = nil } }
                 ),
                 titleVisibility: .visible
             ) {
-                Button("מחק", role: .destructive) {
+                Button("common.delete", role: .destructive) {
                     guard let p = postPendingDelete else { return }
                     // הסרה אופטימית מה־UI
                     feedManager.removePostLocally(p.id)
@@ -93,12 +97,13 @@ struct FeedView: View {
                         case .failure(let err):
                             print("Delete error: \(err)")
                             HapticFeedback.notification(.error)
-                            // רשות: להחזיר את הפוסט אם תרצי
                         }
                     }
                     postPendingDelete = nil
                 }
-                Button("ביטול", role: .cancel) { postPendingDelete = nil }
+                Button("common.cancel", role: .cancel) { postPendingDelete = nil }
+            } message: {
+                Text("feed.delete.message")
             }
         }
     }
@@ -109,7 +114,7 @@ struct FeedPostCard: View {
     let post: FeedPost
     var onDeleted: () -> Void = {}
     var onLikeChanged: () -> Void = {}
-    var onAskDelete: (FeedPost) -> Void = { _ in }   // ← חדש
+    var onAskDelete: (FeedPost) -> Void = { _ in }
 
     @State private var comments: [Comment] = []
     @State private var newComment = ""
@@ -143,7 +148,7 @@ struct FeedPostCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(userProfile?.petName ?? "משתמש")
+                    Text(userProfile?.petName ?? String(localized: "feed.user_default"))
                         .font(.headline)
                         .fontWeight(.bold)
                     HStack {
@@ -162,12 +167,12 @@ struct FeedPostCard: View {
                 if canDelete {
                     Button(role: .destructive) {
                         HapticFeedback.impact(.light)
-                        onAskDelete(post)                   // ← פותח דיאלוג במסך
+                        onAskDelete(post)
                     } label: {
                         Image(systemName: "trash")
                             .foregroundColor(.red)
                     }
-                    .buttonStyle(.plain)                    // חשוב למניעת בליעות לחיצה
+                    .buttonStyle(.plain)
                     .contentShape(Rectangle())
                 }
             }
@@ -176,7 +181,9 @@ struct FeedPostCard: View {
             if !post.imageUrl.isEmpty, let url = URL(string: post.imageUrl) {
                 ZStack {
                     AsyncImage(url: url) { image in
-                        image.resizable().aspectRatio(contentMode: .fill)
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
                     } placeholder: {
                         Rectangle()
                             .fill(Color.gray.opacity(0.3))
@@ -186,6 +193,7 @@ struct FeedPostCard: View {
                     .frame(height: 250)
                     .clipped()
                     .cornerRadius(8)
+                    .contentShape(Rectangle())
                     .onTapGesture(count: 2) { doubleTapLike() }
 
                     Image(systemName: "heart.fill")
@@ -196,6 +204,7 @@ struct FeedPostCard: View {
                         .opacity(heartOpacity)
                         .animation(.spring(response: 0.4, dampingFraction: 0.6), value: heartScale)
                         .animation(.easeOut(duration: 1.0), value: heartOpacity)
+                        .allowsHitTesting(false)
                 }
             }
 
@@ -228,7 +237,7 @@ struct FeedPostCard: View {
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "message").foregroundColor(.gray)
-                        Text("תגובות").font(.caption).foregroundColor(.gray)
+                        Text("feed.comments").font(.caption).foregroundColor(.gray)
                     }
                 }
 
@@ -242,16 +251,16 @@ struct FeedPostCard: View {
                     if isLoadingComments {
                         ProgressView().frame(maxWidth: .infinity)
                     } else if comments.isEmpty {
-                        Text("אין תגובות עדיין").foregroundColor(.secondary)
+                        Text("feed.comments.empty").foregroundColor(.secondary)
                     } else {
                         ForEach(comments) { comment in
                             CommentRow(comment: comment, postId: post.id) { loadComments() }
                         }
                     }
                     HStack {
-                        TextField("הוסף תגובה", text: $newComment)
+                        TextField(String(localized: "feed.comments.placeholder"), text: $newComment)
                             .textFieldStyle(.roundedBorder)
-                        Button("פרסם") {
+                        Button("common.post") {
                             HapticFeedback.impact(.light)
                             addComment()
                         }
@@ -474,7 +483,7 @@ struct CommentRow: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
-                    Text(userProfile?.petName ?? "משתמש")
+                    Text(userProfile?.petName ?? String(localized: "feed.user_default"))
                         .font(.caption)
                         .fontWeight(.medium)
                         .foregroundColor(.logoBrown)
@@ -500,12 +509,12 @@ struct CommentRow: View {
             }
         }
         .onAppear { loadUserProfile() }
-        .confirmationDialog("מחק תגובה", isPresented: $showDeleteConfirm) {
-            Button("מחק", role: .destructive) {
+        .confirmationDialog(String(localized: "feed.comment.delete.title"), isPresented: $showDeleteConfirm) {
+            Button("common.delete", role: .destructive) {
                 HapticFeedback.notification(.warning)
                 deleteComment()
             }
-            Button("ביטול", role: .cancel) { }
+            Button("common.cancel", role: .cancel) { }
         }
     }
 
@@ -555,6 +564,15 @@ struct CommentRow: View {
     }
 }
 
+// Helper function for time ago
+func timeAgo(_ timestamp: TimeInterval) -> String {
+    let date = Date(timeIntervalSince1970: timestamp)
+    let formatter = RelativeDateTimeFormatter()
+    formatter.locale = Locale.current
+    formatter.unitsStyle = .short
+    return formatter.localizedString(for: date, relativeTo: Date())
+}
+
 // MARK: - Feed Manager
 final class FeedManager: ObservableObject {
     @Published var posts: [FeedPost] = []
@@ -583,7 +601,7 @@ final class FeedManager: ObservableObject {
                             if let locationName = data["locationName"] as? String, !locationName.isEmpty {
                                 post.location = "📍 \(locationName)"
                             } else {
-                                post.location = "📍 מיקום"
+                                post.location = "📍 \(String(localized: "map.default_location_name"))"
                             }
                         }
                         return post

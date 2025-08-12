@@ -4,13 +4,13 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 
+// MARK: - Profile
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthManager
     @StateObject private var profileManager = ProfileManager()
     @State private var showingEditProfile = false
     @State private var showingMyPosts = false
     @State private var showingSettings = false
-    @State private var selectedTab = 0
     
     var body: some View {
         NavigationStack {
@@ -28,37 +28,26 @@ struct ProfileView: View {
                     
                     // Action Buttons
                     VStack(spacing: 12) {
-                        Button("הפוסטים שלי") {
-                            showingMyPosts = true
-                        }
-                        .buttonStyle(ProfileButtonStyle(color: .logoBrown))
+                        Button("profile.my_posts") { showingMyPosts = true }
+                            .buttonStyle(ProfileButtonStyle(color: .logoBrown))
                         
-                        Button("הגדרות") {
-                            showingSettings = true
-                        }
-                        .buttonStyle(ProfileButtonStyle(color: .petPalsBlue))
+                        Button("profile.settings") { showingSettings = true }
+                            .buttonStyle(ProfileButtonStyle(color: .petPalsBlue))
                         
-                        Button("התנתק") {
-                            authManager.signOut()
-                        }
-                        .buttonStyle(ProfileButtonStyle(color: .red))
+                        Button("profile.sign_out") { authManager.signOut() }
+                            .buttonStyle(ProfileButtonStyle(color: .red))
                     }
                     
                     Spacer(minLength: 100)
                 }
                 .padding()
             }
-            .navigationTitle("הפרופיל שלי")
-            .refreshable {
-                await profileManager.refreshData()
-            }
+            .navigationTitle(Text("profile.title"))
+            .refreshable { await profileManager.refreshData() }
         }
-        .onAppear {
-            profileManager.loadUserProfile()
-        }
+        .onAppear { profileManager.loadUserProfile() }
         .sheet(isPresented: $showingEditProfile) {
-            EditProfileView()
-                .environmentObject(profileManager)
+            EditProfileView().environmentObject(profileManager)
         }
         .sheet(isPresented: $showingMyPosts) {
             MyPostsView()
@@ -68,7 +57,6 @@ struct ProfileView: View {
         }
     }
 }
-
 
 // MARK: - Profile Header
 struct ProfileHeaderView: View {
@@ -84,59 +72,38 @@ struct ProfileHeaderView: View {
                     Circle()
                         .fill(Color.gray.opacity(0.3))
                         .frame(width: 120, height: 120)
-                        .overlay {
-                            ProgressView()
-                        }
+                        .overlay { ProgressView() }
                 } else if let profile = profile,
                           !profile.petImage.isEmpty,
                           let url = URL(string: profile.petImage) {
                     AsyncImage(url: url) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
+                        image.resizable().aspectRatio(contentMode: .fill)
                     } placeholder: {
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
-                            .overlay {
-                                Text("🐾")
-                                    .font(.system(size: 40))
-                            }
+                        Circle().fill(Color.gray.opacity(0.3)).overlay { Text("🐾").font(.system(size: 40)) }
                     }
                     .frame(width: 120, height: 120)
                     .clipShape(Circle())
-                    .overlay {
-                        Circle()
-                            .stroke(Color.logoBrown, lineWidth: 3)
-                    }
+                    .overlay { Circle().stroke(Color.logoBrown, lineWidth: 3) }
                 } else {
                     Circle()
                         .fill(Color.logoBrown.opacity(0.1))
                         .frame(width: 120, height: 120)
-                        .overlay {
-                            Text("🐾")
-                                .font(.system(size: 40))
-                                .foregroundColor(.logoBrown)
-                        }
-                        .overlay {
-                            Circle()
-                                .stroke(Color.logoBrown, lineWidth: 3)
-                        }
+                        .overlay { Text("🐾").font(.system(size: 40)).foregroundColor(.logoBrown) }
+                        .overlay { Circle().stroke(Color.logoBrown, lineWidth: 3) }
                 }
             }
             
             // Pet Details
             VStack(spacing: 8) {
-                Text(profile?.petName ?? "בחר שם לחיית המחמד")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.logoBrown)
+                Text(profile?.petName.isEmpty == false ? profile!.petName : NSLocalizedString("profile.pick_name", comment: ""))
+                    .font(.title2).fontWeight(.bold).foregroundColor(.logoBrown)
                 
                 if let profile = profile {
                     HStack {
                         if profile.petAge > 0 {
-                            Label("\(profile.petAge) שנים", systemImage: "calendar")
+                            // לשיפור: אפשר להוסיף stringsdict לריבוי
+                            Label("\(profile.petAge) \(NSLocalizedString("profile.years", comment: ""))", systemImage: "calendar")
                         }
-                        
                         if !profile.petBreed.isEmpty {
                             Label(profile.petBreed, systemImage: "pawprint.fill")
                         }
@@ -147,7 +114,7 @@ struct ProfileHeaderView: View {
             }
             
             // Edit Button
-            Button("ערוך פרופיל", action: onEditTapped)
+            Button("profile.edit", action: onEditTapped)
                 .buttonStyle(ProfileButtonStyle(color: .logoBrown, isCompact: true))
         }
         .padding()
@@ -163,38 +130,13 @@ struct ProfileStatsView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("סטטיסטיקות")
-                .font(.headline)
-                .fontWeight(.bold)
+            Text("profile.stats.title").font(.headline).fontWeight(.bold)
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
-                StatItemCard(
-                    title: "פוסטים",
-                    value: "\(stats.totalPosts)",
-                    icon: "camera.fill",
-                    color: .pink
-                )
-                
-                StatItemCard(
-                    title: "לייקים",
-                    value: "\(stats.totalLikes)",
-                    icon: "heart.fill",
-                    color: .red
-                )
-                
-                StatItemCard(
-                    title: "תגובות",
-                    value: "\(stats.totalComments)",
-                    icon: "message.fill",
-                    color: .blue
-                )
-                
-                StatItemCard(
-                    title: "ימים בחודש",
-                    value: "\(stats.activeDaysThisMonth)",
-                    icon: "calendar.badge.clock",
-                    color: .green
-                )
+                StatItemCard(title: "profile.stats.posts",   value: "\(stats.totalPosts)",         icon: "camera.fill",        color: .pink)
+                StatItemCard(title: "profile.stats.likes",   value: "\(stats.totalLikes)",         icon: "heart.fill",         color: .red)
+                StatItemCard(title: "profile.stats.comments",value: "\(stats.totalComments)",      icon: "message.fill",       color: .blue)
+                StatItemCard(title: "profile.stats.days_in_month", value: "\(stats.activeDaysThisMonth)", icon: "calendar.badge.clock", color: .green)
             }
         }
         .padding()
@@ -205,24 +147,16 @@ struct ProfileStatsView: View {
 }
 
 struct StatItemCard: View {
-    let title: String
+    let title: LocalizedStringKey
     let value: String
     let icon: String
     let color: Color
     
     var body: some View {
         VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(color)
-            
-            Text(value)
-                .font(.title3)
-                .fontWeight(.bold)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
+            Image(systemName: icon).font(.title2).foregroundColor(color)
+            Text(value).font(.title3).fontWeight(.bold)
+            Text(title).font(.caption).foregroundColor(.secondary)
         }
         .frame(height: 80)
         .frame(maxWidth: .infinity)
@@ -275,86 +209,59 @@ struct EditProfileView: View {
                         ZStack {
                             if let selectedImage {
                                 Image(uiImage: selectedImage)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
+                                    .resizable().aspectRatio(contentMode: .fill)
                                     .frame(width: 120, height: 120)
                                     .clipShape(Circle())
-                                    .overlay {
-                                        Circle()
-                                            .stroke(Color.logoBrown, lineWidth: 3)
-                                    }
+                                    .overlay { Circle().stroke(Color.logoBrown, lineWidth: 3) }
                             } else if let profile = profileManager.userProfile,
                                       !profile.petImage.isEmpty,
                                       let url = URL(string: profile.petImage) {
                                 AsyncImage(url: url) { image in
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
+                                    image.resizable().aspectRatio(contentMode: .fill)
                                 } placeholder: {
-                                    Circle()
-                                        .fill(Color.gray.opacity(0.3))
+                                    Circle().fill(Color.gray.opacity(0.3))
                                 }
                                 .frame(width: 120, height: 120)
                                 .clipShape(Circle())
-                                .overlay {
-                                    Circle()
-                                        .stroke(Color.logoBrown, lineWidth: 3)
-                                }
+                                .overlay { Circle().stroke(Color.logoBrown, lineWidth: 3) }
                             } else {
                                 Circle()
                                     .fill(Color.logoBrown.opacity(0.1))
                                     .frame(width: 120, height: 120)
-                                    .overlay {
-                                        Text("🐾")
-                                            .font(.system(size: 40))
-                                            .foregroundColor(.logoBrown)
-                                    }
-                                    .overlay {
-                                        Circle()
-                                            .stroke(Color.logoBrown, lineWidth: 3)
-                                    }
+                                    .overlay { Text("🐾").font(.system(size: 40)).foregroundColor(.logoBrown) }
+                                    .overlay { Circle().stroke(Color.logoBrown, lineWidth: 3) }
                             }
                         }
                         
-                        PhotosPicker(
-                            selection: $selectedItem,
-                            matching: .images
-                        ) {
-                            Text("שנה תמונה")
-                                .foregroundColor(.logoBrown)
+                        PhotosPicker(selection: $selectedItem, matching: .images) {
+                            Text("profile.change_photo").foregroundColor(.logoBrown)
                         }
                     }
                     
                     // Form Fields
                     VStack(spacing: 16) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("שם חיית המחמד")
-                                .font(.headline)
-                            TextField("הכנס שם", text: $petName)
+                            Text("profile.pet_name").font(.headline)
+                            TextField(LocalizedStringKey("profile.pet_name.placeholder"), text: $petName)
                                 .textFieldStyle(PetPalsTextFieldStyle())
                         }
                         
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("גיל")
-                                .font(.headline)
+                            Text("profile.age").font(.headline)
                             HStack {
                                 Stepper(value: $petAge, in: 0...30) {
-                                    Text("\(petAge) שנים")
+                                    Text("\(petAge) \(NSLocalizedString("profile.years", comment: ""))")
                                 }
                             }
                             .padding()
                             .background(Color.white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.logoBrown, lineWidth: 1)
-                            )
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.logoBrown, lineWidth: 1))
                             .cornerRadius(12)
                         }
                         
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("גזע")
-                                .font(.headline)
-                            TextField("הכנס גזע", text: $petBreed)
+                            Text("profile.breed").font(.headline)
+                            TextField(LocalizedStringKey("profile.breed.placeholder"), text: $petBreed)
                                 .textFieldStyle(PetPalsTextFieldStyle())
                         }
                     }
@@ -370,33 +277,27 @@ struct EditProfileView: View {
                     }
                     
                     // Save Button
-                    Button("שמור שינויים") {
-                        saveProfile()
-                    }
-                    .buttonStyle(ProfileButtonStyle(color: .logoBrown))
-                    .disabled(isLoading || petName.isEmpty)
+                    Button("common.save_changes") { saveProfile() }
+                        .buttonStyle(ProfileButtonStyle(color: .logoBrown))
+                        .disabled(isLoading || petName.isEmpty)
                 }
                 .padding()
             }
-            .navigationTitle("עריכת פרופיל")
+            .navigationTitle(Text("profile.edit.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("בטל") { dismiss() }
+                    Button("common.cancel") { dismiss() }
                 }
             }
         }
-        .onAppear {
-            loadCurrentProfile()
-        }
+        .onAppear { loadCurrentProfile() }
         .onChange(of: selectedItem) { newItem in
             Task {
                 if let newItem,
                    let data = try? await newItem.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
-                    await MainActor.run {
-                        selectedImage = image
-                    }
+                    await MainActor.run { selectedImage = image }
                 }
             }
         }
@@ -412,10 +313,9 @@ struct EditProfileView: View {
     
     private func saveProfile() {
         guard !petName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            errorMessage = "נא להכניס שם לחיית המחמד"
+            errorMessage = NSLocalizedString("profile.error.enter_pet_name", comment: "")
             return
         }
-        
         isLoading = true
         errorMessage = nil
         
@@ -427,22 +327,18 @@ struct EditProfileView: View {
                     petBreed: petBreed.trimmingCharacters(in: .whitespacesAndNewlines),
                     newImage: selectedImage
                 )
-                
-                await MainActor.run {
-                    isLoading = false
-                    dismiss()
-                }
+                await MainActor.run { isLoading = false; dismiss() }
             } catch {
                 await MainActor.run {
                     isLoading = false
-                    errorMessage = "שגיאה בשמירת הפרופיל: \(error.localizedDescription)"
+                    errorMessage = NSLocalizedString("profile.error.save_failed", comment: "") + ": \(error.localizedDescription)"
                 }
             }
         }
     }
 }
 
-// MARK: - Profile Manager
+// MARK: - Profile Manager (ללא שינוי מהותי)
 @MainActor
 final class ProfileManager: ObservableObject {
     @Published var userProfile: UserProfile?
@@ -453,23 +349,12 @@ final class ProfileManager: ObservableObject {
     
     func loadUserProfile() {
         guard let userId = Auth.auth().currentUser?.uid else { return }
-        
         isLoading = true
-        
         db.collection("users").document(userId).getDocument { [weak self] doc, error in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 self.isLoading = false
-                
-                if let error = error {
-                    print("Error loading profile: \(error)")
-                    return
-                }
-                
-                if let data = doc?.data() {
-                    self.userProfile = UserProfile(dict: data)
-                }
-                
+                if let data = doc?.data() { self.userProfile = UserProfile(dict: data) }
                 self.loadUserStats()
             }
         }
@@ -477,59 +362,48 @@ final class ProfileManager: ObservableObject {
     
     private func loadUserStats() {
         guard let userId = Auth.auth().currentUser?.uid else { return }
-        
-        // Load posts count and likes
-        db.collection("posts")
-            .whereField("userId", isEqualTo: userId)
-            .getDocuments { [weak self] snapshot, error in
+        db.collection("posts").whereField("userId", isEqualTo: userId)
+            .getDocuments { [weak self] snapshot, _ in
                 DispatchQueue.main.async {
                     guard let self = self, let documents = snapshot?.documents else { return }
-                    
                     let posts = documents.count
                     let likes = documents.compactMap { $0.data()["likes"] as? Int }.reduce(0, +)
-                    
-                    // Count comments made by user
                     var totalComments = 0
                     let group = DispatchGroup()
-                    
                     for doc in documents {
                         group.enter()
                         doc.reference.collection("comments")
                             .whereField("userId", isEqualTo: userId)
-                            .getDocuments { snapshot, _ in
-                                totalComments += snapshot?.documents.count ?? 0
+                            .getDocuments { snap, _ in
+                                totalComments += snap?.documents.count ?? 0
                                 group.leave()
                             }
                     }
-                    
                     group.notify(queue: .main) {
-                        let calendar = Calendar.current
-                        let currentMonth = calendar.component(.month, from: Date())
-                        let currentYear = calendar.component(.year, from: Date())
-                        
-                        let thisMonthPosts = documents.filter { doc in
-                            if let timestamp = doc.data()["timestamp"] as? Double {
-                                let date = Date(timeIntervalSince1970: timestamp)
-                                let postMonth = calendar.component(.month, from: date)
-                                let postYear = calendar.component(.year, from: date)
-                                return postMonth == currentMonth && postYear == currentYear
+                        let cal = Calendar.current
+                        let thisMonth = documents.filter { d in
+                            if let ts = d.data()["timestamp"] as? Double {
+                                let date = Date(timeIntervalSince1970: ts)
+                                let m = cal.component(.month, from: date)
+                                let y = cal.component(.year, from: date)
+                                let cm = cal.component(.month, from: Date())
+                                let cy = cal.component(.year, from: Date())
+                                return m == cm && y == cy
                             }
                             return false
                         }
-                        
-                        let uniqueDays = Set(thisMonthPosts.compactMap { doc in
-                            if let timestamp = doc.data()["timestamp"] as? Double {
-                                let date = Date(timeIntervalSince1970: timestamp)
-                                return calendar.component(.day, from: date)
+                        let days = Set(thisMonth.compactMap { d in
+                            if let ts = d.data()["timestamp"] as? Double {
+                                let date = Date(timeIntervalSince1970: ts)
+                                return cal.component(.day, from: date)
                             }
                             return nil
                         })
-                        
                         self.userStats = ProfileStats(
                             totalPosts: posts,
                             totalLikes: likes,
                             totalComments: totalComments,
-                            activeDaysThisMonth: uniqueDays.count
+                            activeDaysThisMonth: days.count
                         )
                     }
                 }
@@ -538,63 +412,28 @@ final class ProfileManager: ObservableObject {
     
     func updateProfile(petName: String, petAge: Int, petBreed: String, newImage: UIImage?) async throws {
         guard let userId = Auth.auth().currentUser?.uid else { return }
-        
         var imageUrl = userProfile?.petImage ?? ""
-        
-        // Upload new image if provided
         if let newImage = newImage {
             imageUrl = try await uploadImage(newImage, userId: userId)
         }
-        
-        let updatedProfile = UserProfile(
-            petName: petName,
-            petAge: petAge,
-            petBreed: petBreed,
-            petImage: imageUrl
-        )
-        
+        let updatedProfile = UserProfile(petName: petName, petAge: petAge, petBreed: petBreed, petImage: imageUrl)
         try await db.collection("users").document(userId).setData(updatedProfile.asDict, merge: true)
-        
         self.userProfile = updatedProfile
     }
     
     private func uploadImage(_ image: UIImage, userId: String) async throws -> String {
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+        guard let data = image.jpegData(compressionQuality: 0.8) else {
             throw NSError(domain: "ImageError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to convert image"])
         }
-        
         let filename = "profileImages/\(userId)/profile_\(Int(Date().timeIntervalSince1970)).jpg"
-        let storageRef = Storage.storage().reference().child(filename)
-        
-        let metadata = StorageMetadata()
-        metadata.contentType = "image/jpeg"
-        
-        _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
-        let downloadURL = try await storageRef.downloadURL()
-        
-        return downloadURL.absoluteString
+        let ref = Storage.storage().reference().child(filename)
+        let meta = StorageMetadata(); meta.contentType = "image/jpeg"
+        _ = try await ref.putDataAsync(data, metadata: meta)
+        let url = try await ref.downloadURL()
+        return url.absoluteString
     }
     
-    func refreshData() async {
-        await MainActor.run {
-            loadUserProfile()
-        }
-    }
-}
-import Foundation
-
-func changeAppLanguage(to languageCode: String) {
-    UserDefaults.standard.set([languageCode], forKey: "AppleLanguages")
-    UserDefaults.standard.set(languageCode, forKey: "selectedLanguage")
-    UserDefaults.standard.synchronize()
-
-    Bundle.setLanguage(languageCode)       // שינוי באנדל בזמן ריצה
-    NotificationCenter.default.post(name: .languageChanged, object: nil) // ריענון מסכים
-}
-
-/// הרחבה לנוטיפיקציה
-extension Notification.Name {
-    static let languageChanged = Notification.Name("languageChanged")
+    func refreshData() async { await MainActor.run { loadUserProfile() } }
 }
 
 // MARK: - Profile Stats Model
@@ -604,127 +443,96 @@ struct ProfileStats {
     var totalComments = 0
     var activeDaysThisMonth = 0
 }
-// MARK: - Settings View
+
+// MARK: - Settings
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var lang: LanguageManager
     @AppStorage("selectedLanguage") private var selectedLanguage = "he"
     @AppStorage("enableNotifications") private var enableNotifications = true
     @AppStorage("enableLocation") private var enableLocation = true
     @State private var showLanguageSelection = false
-
-    // שם ידידותי לשפה הנבחרת
-    private var languageDisplayName: String {
-        switch selectedLanguage {
-        case "he": return "עברית"
-        case "en": return "English"
-        default:   return selectedLanguage
-        }
+    
+    // מציג את שם השפה הנוכחית – לוקליזבילי
+    private var languageDisplayName: LocalizedStringKey {
+        selectedLanguage == "he" ? "language.hebrew" : "language.english"
     }
-
+    
     var body: some View {
         NavigationStack {
             List {
-                Section("כללי") {
+                Section(header: Text("general.title")) {
                     HStack {
-                        Image(systemName: "globe")
-                            .foregroundColor(.blue)
-                            .frame(width: 25)
-                        Text("שפה")
+                        Image(systemName: "globe").foregroundColor(.blue).frame(width: 25)
+                        Text("settings.language")
                         Spacer()
-                        Button(languageDisplayName) {
-                            showLanguageSelection = true
-                        }
-                        .foregroundColor(.secondary)
+                        Button(languageDisplayName) { showLanguageSelection = true }
+                            .foregroundColor(.secondary)
                     }
-
+                    
                     HStack {
-                        Image(systemName: "bell.fill")
-                            .foregroundColor(.orange)
-                            .frame(width: 25)
-                        Text("התראות")
+                        Image(systemName: "bell.fill").foregroundColor(.orange).frame(width: 25)
+                        Text("settings.notifications")
                         Spacer()
                         Toggle("", isOn: $enableNotifications)
                     }
-
+                    
                     HStack {
-                        Image(systemName: "location.fill")
-                            .foregroundColor(.green)
-                            .frame(width: 25)
-                        Text("שירותי מיקום")
+                        Image(systemName: "location.fill").foregroundColor(.green).frame(width: 25)
+                        Text("settings.location_services")
                         Spacer()
                         Toggle("", isOn: $enableLocation)
                     }
                 }
-
-                Section("תמיכה") {
+                
+                Section(header: Text("support.title")) {
                     Button {
                         if let url = URL(string: "mailto:support@petpals.com") {
                             UIApplication.shared.open(url)
                         }
                     } label: {
                         HStack {
-                            Image(systemName: "envelope.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 25)
-                            Text("צור קשר")
-                                .foregroundColor(.primary)
+                            Image(systemName: "envelope.fill").foregroundColor(.blue).frame(width: 25)
+                            Text("support.contact").foregroundColor(.primary)
                             Spacer()
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.secondary)
-                                .font(.caption)
+                            Image(systemName: "chevron.right").foregroundColor(.secondary).font(.caption)
                         }
                     }
-
+                    
                     Button {
                         if let url = URL(string: "itms-apps://itunes.apple.com/app/id123456789") {
                             UIApplication.shared.open(url)
                         }
                     } label: {
                         HStack {
-                            Image(systemName: "star.fill")
-                                .foregroundColor(.yellow)
-                                .frame(width: 25)
-                            Text("דרג את האפליקציה")
-                                .foregroundColor(.primary)
+                            Image(systemName: "star.fill").foregroundColor(.yellow).frame(width: 25)
+                            Text("support.rate_app").foregroundColor(.primary)
                             Spacer()
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.secondary)
-                                .font(.caption)
+                            Image(systemName: "chevron.right").foregroundColor(.secondary).font(.caption)
                         }
                     }
                 }
-
-                Section("מידע") {
+                
+                Section(header: Text("info.title")) {
                     HStack {
-                        Image(systemName: "info.circle.fill")
-                            .foregroundColor(.blue)
-                            .frame(width: 25)
-                        Text("גרסת אפליקציה")
+                        Image(systemName: "info.circle.fill").foregroundColor(.blue).frame(width: 25)
+                        Text("info.app_version")
                         Spacer()
-                        Text("1.0.0")
-                            .foregroundColor(.secondary)
+                        Text("1.0.0").foregroundColor(.secondary)
                     }
                 }
             }
-            .navigationTitle("הגדרות")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(Text("settings.title"))
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("סגור") { dismiss() }
+                    Button("common.close") { dismiss() }
                 }
             }
         }
-        .confirmationDialog("בחר שפה", isPresented: $showLanguageSelection) {
-            Button("עברית") {
-                selectedLanguage = "he"
-                changeAppLanguage(to: "he")
-            }
-            Button("English") {
-                selectedLanguage = "en"
-                changeAppLanguage(to: "en")
-            }
-           
-            Button("ביטול", role: .cancel) { }
+        .confirmationDialog(Text("settings.choose_language"), isPresented: $showLanguageSelection) {
+            Button("language.hebrew")  { selectedLanguage = "he"; lang.set("he") }
+            Button("language.english") { selectedLanguage = "en"; lang.set("en") }
+            Button("common.cancel", role: .cancel) { }
         }
     }
 }
