@@ -1,11 +1,4 @@
 
-
-//
-//  StatisticsView.swift
-//
-//
-//  Created by mymac on 08/08/2025.
-//
 import SwiftUI
 import Charts
 import FirebaseAuth
@@ -24,32 +17,55 @@ struct StatisticsView: View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 20) {
-                    // Header with logo
+                    // Header with logo + title
                     HStack {
                         Text("🐾")
                             .font(.system(size: 32))
-                        Text("PetPals Statistics")
+                        Text("stats.header")
                             .font(.title2)
                             .fontWeight(.bold)
                             .foregroundColor(.logoBrown)
                     }
                     
                     if statsManager.isLoading {
-                        ProgressView("טוען נתונים...")
-                            .frame(height: 200)
+                        VStack(spacing: 12) {
+                            ProgressView()
+                            Text("stats.loading")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(height: 200)
                     } else {
                         // Quick stat cards
                         LazyVGrid(columns: statColumns, spacing: 12) {
-                            QuickStatCard(card: StatCard(title: "פוסטים", value: "\(statsManager.totalPosts)", icon: "camera.fill", color: .pink))
-                            QuickStatCard(card: StatCard(title: "לייקים", value: "\(statsManager.totalLikes)", icon: "heart.fill", color: .red))
-                            QuickStatCard(card: StatCard(title: "תגובות", value: "\(statsManager.totalComments)", icon: "message.fill", color: .blue))
-                            QuickStatCard(card: StatCard(title: "מרחק", value: String(format: "%.1f ק\"מ", statsManager.totalDistance), icon: "location.fill", color: .green))
+                            QuickStatCard(card: StatCard(title: "stats.quick.posts",
+                                                         value: "\(statsManager.totalPosts)",
+                                                         icon: "camera.fill",
+                                                         color: .pink))
+                            QuickStatCard(card: StatCard(title: "stats.quick.likes",
+                                                         value: "\(statsManager.totalLikes)",
+                                                         icon: "heart.fill",
+                                                         color: .red))
+                            QuickStatCard(card: StatCard(title: "stats.quick.comments",
+                                                         value: "\(statsManager.totalComments)",
+                                                         icon: "message.fill",
+                                                         color: .blue))
+                            QuickStatCard(card: StatCard(title: "stats.breakdown.distance",
+                                                         value: "\(String(format: "%.1f", statsManager.totalDistance)) \(String(localized: "unit.km"))",
+                                                         icon: "location.fill",
+                                                         color: .green))
                         }
                         
                         // Advanced stats row
                         LazyVGrid(columns: statColumns, spacing: 12) {
-                            QuickStatCard(card: StatCard(title: "ימים פעילים החודש", value: "\(statsManager.activeDaysThisMonth)", icon: "calendar.badge.clock", color: .purple))
-                            QuickStatCard(card: StatCard(title: "רצף ימים", value: "\(statsManager.streakDays)", icon: "flame.fill", color: .orange))
+                            QuickStatCard(card: StatCard(title: "stats.quick.active_days",
+                                                         value: "\(statsManager.activeDaysThisMonth)",
+                                                         icon: "calendar.badge.clock",
+                                                         color: .purple))
+                            QuickStatCard(card: StatCard(title: "stats.quick.streak",
+                                                         value: "\(statsManager.streakDays)",
+                                                         icon: "flame.fill",
+                                                         color: .orange))
                         }
                         
                         // Additional insights
@@ -69,14 +85,12 @@ struct StatisticsView: View {
                 }
                 .padding()
             }
-            .navigationTitle("סטטיסטיקות")
+            .navigationTitle(Text("stats.title"))
             .refreshable {
                 await statsManager.refreshStats()
             }
         }
-        .onAppear {
-            statsManager.loadStatistics()
-        }
+        .onAppear { statsManager.loadStatistics() }
     }
 }
 
@@ -86,28 +100,26 @@ struct InsightsCardView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("תובנות מעניינות")
+            Text("stats.insights.title")
                 .font(.title3)
                 .fontWeight(.bold)
             
             VStack(spacing: 8) {
                 InsightRow(
                     icon: "chart.bar.fill",
-                    title: "ממוצע לייקים לפוסט",
+                    title: "stats.insights.avg_likes",
                     value: String(format: "%.1f", statsManager.averageLikesPerPost),
                     color: .purple
                 )
-                
                 InsightRow(
                     icon: "calendar.badge.plus",
-                    title: "היום הכי פעיל",
+                    title: "stats.insights.most_active_day",
                     value: statsManager.mostActiveDay,
                     color: .blue
                 )
-                
                 InsightRow(
                     icon: "mappin.and.ellipse",
-                    title: "מקום מועדף",
+                    title: "stats.insights.favorite_location",
                     value: statsManager.favoriteLocation,
                     color: .green
                 )
@@ -122,7 +134,7 @@ struct InsightsCardView: View {
 
 struct InsightRow: View {
     let icon: String
-    let title: String
+    let title: LocalizedStringKey   // ← היה String
     let value: String
     let color: Color
     
@@ -132,7 +144,7 @@ struct InsightRow: View {
                 .foregroundColor(color)
                 .frame(width: 20)
             
-            Text(title)
+            Text(title)              // ← עכשיו מקבל מפתח
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
@@ -152,62 +164,40 @@ struct MonthlyChartView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("פעילות חודשית")
+            Text("stats.monthly.title")
                 .font(.title3)
                 .fontWeight(.bold)
             
             Chart(monthlyStats) { stat in
-                // Posts line
                 LineMark(
-                    x: .value("חודש", stat.month),
-                    y: .value("פוסטים", stat.postsCount)
+                    x: .value("month", stat.month),
+                    y: .value(String(localized: "stats.monthly.legend.posts"), stat.postsCount)
                 )
                 .foregroundStyle(.blue)
                 .lineStyle(StrokeStyle(lineWidth: 3))
                 .interpolationMethod(.catmullRom)
                 .symbol(.circle)
                 
-                // Likes line
                 LineMark(
-                    x: .value("חודש", stat.month),
-                    y: .value("לייקים", stat.likesReceived)
+                    x: .value("month", stat.month),
+                    y: .value(String(localized: "stats.monthly.legend.likes"), stat.likesReceived)
                 )
                 .foregroundStyle(.red)
                 .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 3]))
                 .symbol(.triangle)
             }
             .frame(height: 200)
-            .chartYAxis {
-                AxisMarks(position: .leading)
-            }
-            .chartXAxis {
-                AxisMarks(values: .automatic) { value in
-                    AxisGridLine()
-                    AxisValueLabel() {
-                        if let month = value.as(String.self) {
-                            Text(month)
-                                .font(.caption2)
-                                .rotationEffect(.degrees(-45))
-                        }
-                    }
-                }
-            }
+            .chartYAxis { AxisMarks(position: .leading) }
+            .chartXAxis { AxisMarks(values: .automatic) }
             .chartLegend(position: .bottom, alignment: .center) {
                 HStack(spacing: 20) {
                     HStack(spacing: 4) {
-                        Circle()
-                            .fill(.blue)
-                            .frame(width: 8, height: 8)
-                        Text("פוסטים")
-                            .font(.caption)
+                        Circle().fill(.blue).frame(width: 8, height: 8)
+                        Text("stats.monthly.legend.posts").font(.caption)
                     }
-                    
                     HStack(spacing: 4) {
-                        Circle()
-                            .fill(.red)
-                            .frame(width: 8, height: 8)
-                        Text("לייקים")
-                            .font(.caption)
+                        Circle().fill(.red).frame(width: 8, height: 8)
+                        Text("stats.monthly.legend.likes").font(.caption)
                     }
                 }
             }
@@ -225,7 +215,7 @@ struct MonthlyBreakdownView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("פירוט חודשי")
+            Text("stats.breakdown.title")
                 .font(.title3)
                 .fontWeight(.bold)
             
@@ -236,7 +226,7 @@ struct MonthlyBreakdownView: View {
     }
 }
 
-// MARK: - Monthly Stat Card (Updated)
+// MARK: - Monthly Stat Card
 struct MonthlyStatCard: View {
     let stat: MonthlyStats
     
@@ -246,24 +236,29 @@ struct MonthlyStatCard: View {
                 Text(stat.month)
                     .font(.headline)
                     .fontWeight(.bold)
-                
                 Spacer()
-                
-                Text("🐾")
-                    .font(.title3)
+                Text("🐾").font(.title3)
             }
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
-                StatItem(title: "פוסטים", value: "\(stat.postsCount)", color: .pink)
-                StatItem(title: "לייקים", value: "\(stat.likesReceived)", color: .red)
-                StatItem(title: "תגובות", value: "\(stat.commentsCount)", color: .blue)
-                StatItem(title: "מרחק", value: String(format: "%.1fק\"מ", stat.totalDistance), color: .green)
+                StatItem(title: "stats.quick.posts",
+                         value: "\(stat.postsCount)",
+                         color: .pink)
+                StatItem(title: "stats.quick.likes",
+                         value: "\(stat.likesReceived)",
+                         color: .red)
+                StatItem(title: "stats.quick.comments",
+                         value: "\(stat.commentsCount)",
+                         color: .blue)
+                StatItem(title: "stats.breakdown.distance",
+                         value: "\(String(format: "%.1f", stat.totalDistance)) \(String(localized: "unit.km"))",
+                         color: .green)
             }
             
             // Progress bar for active days
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text("ימים פעילים")
+                    Text("stats.breakdown.active_days")
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Spacer()
@@ -272,7 +267,6 @@ struct MonthlyStatCard: View {
                         .fontWeight(.medium)
                         .foregroundColor(.purple)
                 }
-                
                 ProgressView(value: Double(stat.activeDays), total: 31.0)
                     .progressViewStyle(.linear)
                     .tint(.purple)
@@ -285,20 +279,17 @@ struct MonthlyStatCard: View {
     }
 }
 
-// MARK: - Achievements View
+// MARK: - Achievements View (הטקסטים כאן מגיעים מהמודל עצמו)
 struct AchievementsView: View {
     let achievements: [Achievement]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("🏆")
-                    .font(.title2)
-                Text("הישגים")
-                    .font(.title3)
-                    .fontWeight(.bold)
+                Text("🏆").font(.title2)
+                Text("stats.achievements.title")
+                    .font(.title3).fontWeight(.bold)
             }
-            
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
                 ForEach(achievements) { achievement in
                     AchievementCard(achievement: achievement)
@@ -314,7 +305,6 @@ struct AchievementsView: View {
         )
     }
 }
-
 struct AchievementCard: View {
     let achievement: Achievement
     
@@ -322,14 +312,16 @@ struct AchievementCard: View {
         VStack(spacing: 8) {
             Text(achievement.icon)
                 .font(.system(size: 24))
-            
-            Text(achievement.title)
+
+            // היה: Text(achievement.title)
+            Text(LocalizedStringKey(achievement.title))
                 .font(.subheadline)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
                 .foregroundColor(achievement.color.swiftUIColor)
-            
-            Text(achievement.description)
+
+            // היה: Text(achievement.description)
+            Text(LocalizedStringKey(achievement.description))
                 .font(.caption2)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.secondary)
@@ -347,24 +339,24 @@ struct AchievementCard: View {
     }
 }
 
-// MARK: - Quick Stat Card (Updated)
+
+
+// MARK: - Quick Stat Card
 struct QuickStatCard: View {
-    let card: StatCard
+    let card: StatCard  // title: LocalizedStringKey
     
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: card.icon)
                 .font(.title2)
                 .foregroundColor(card.color)
-            
             Text(card.value)
                 .font(.title3)
                 .fontWeight(.bold)
                 .foregroundColor(card.color)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
-            
-            Text(card.title)
+            Text(card.title)             // ← LocalizedStringKey, יחליף שפה בזמן ריצה
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -374,31 +366,24 @@ struct QuickStatCard: View {
         .frame(maxWidth: .infinity)
         .background(card.color.opacity(0.1))
         .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(card.color.opacity(0.3), lineWidth: 1)
-        )
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(card.color.opacity(0.3), lineWidth: 1))
     }
 }
 
-// MARK: - Stat Item (Updated)
+// MARK: - Stat Item
 struct StatItem: View {
-    let title: String
+    let title: LocalizedStringKey   // ← היה String
     let value: String
     let color: Color
     
     var body: some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.subheadline)
-                .fontWeight(.bold)
+                .font(.subheadline).fontWeight(.bold)
                 .foregroundColor(color)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-            
-            Text(title)
-                .font(.caption2)
-                .foregroundColor(.secondary)
+                .lineLimit(1).minimumScaleFactor(0.8)
+            Text(title)                 // ← מפתח
+                .font(.caption2).foregroundColor(.secondary)
                 .lineLimit(1)
         }
     }
@@ -406,7 +391,7 @@ struct StatItem: View {
 
 // MARK: - StatCard Model
 struct StatCard {
-    let title: String
+    let title: LocalizedStringKey   // ← היה String
     let value: String
     let icon: String
     let color: Color

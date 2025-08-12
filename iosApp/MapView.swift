@@ -7,11 +7,15 @@ import FirebaseAuth
 struct MapView: View {
     @StateObject private var mapManager = MapManager()
     @StateObject private var locationManager = LocationManager()
+
     @State private var selectedPost: LocationPost?
     @State private var showPostDetail = false
     @State private var radiusKm: Double = 20
 
-    // iOS 17+: משתמשים במצלמה
+    // מצביע האם התחלנו להאזין כבר (נמנע התחלה כפולה)
+    @State private var didStartListening = false
+
+    // iOS 17+: מצלמה
     @State private var cameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 32.0853, longitude: 34.7818),
                            span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
@@ -27,9 +31,7 @@ struct MapView: View {
         NavigationStack {
             ZStack {
                 if #available(iOS 17.0, *) {
-                    // ---- iOS 17+ ----
                     Map(position: $cameraPosition) {
-                        // פוסטים
                         ForEach(mapManager.locationPosts) { post in
                             Annotation("", coordinate: post.coordinate) {
                                 PostMapMarker(post: post) {
@@ -38,16 +40,12 @@ struct MapView: View {
                                 }
                             }
                         }
-                        // המיקום שלי
                         if let my = locationManager.location?.coordinate {
-                            Annotation("me", coordinate: my) {
-                                UserLocationMarker()
-                            }
+                            Annotation("me", coordinate: my) { UserLocationMarker() }
                         }
                     }
                     .ignoresSafeArea()
                 } else {
-                    // ---- iOS 16 fallback ----
                     Map(coordinateRegion: $region, annotationItems: mapManager.locationPosts) { post in
                         MapAnnotation(coordinate: post.coordinate) {
                             PostMapMarker(post: post) {
@@ -57,23 +55,17 @@ struct MapView: View {
                         }
                     }
                     .ignoresSafeArea()
-                    // ב-iOS16 אין בעיה לשים MapAnnotation מחוץ ל-Map, אבל לא צריך:
-                    // את סמן המשתמש נכניס כ-Overlay פשוט:
-                    .overlay(alignment: .topLeading) {
-                        EmptyView() // שמור על מבנה אחיד
-                    }
                 }
 
-                // כפתורי רדיוס/קפיצה
                 controlsOverlay
-                // טעינה
+
                 if mapManager.isLoading { loadingOverlay }
             }
             .navigationTitle("מפת פוסטים")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { reloadNearMe() } label: {
+                    Button { forceRefresh() } label: {
                         Image(systemName: "arrow.clockwise")
                     }
                 }
@@ -81,38 +73,52 @@ struct MapView: View {
         }
         .onAppear {
             locationManager.requestLocationPermission()
-            reloadNearMe()
+            // אם כבר יש מיקום מיידי (מהפעלה קודמת), נתחיל להאזין
+            if let c = locationManager.location?.coordinate, !didStartListening {
+                didStartListening = true
+                mapManager.startListening(near: c, withinKm: radiusKm)
+                moveCamera(to: c, span: 0.05)
+            }
         }
         .onChange(of: locationManager.location) { newLoc in
             guard let loc = newLoc else { return }
-            if #available(iOS 17.0, *) {
-                withAnimation {
-                    cameraPosition = .region(MKCoordinateRegion(
-                        center: loc.coordinate,
-                        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-                    ))
-                }
+            moveCamera(to: loc.coordinate, span: 0.05)
+
+            // התחלה חד-פעמית של listener כשקיבלנו מיקום ראשון
+            if !didStartListening {
+                didStartListening = true
+                mapManager.startListening(near: loc.coordinate, withinKm: radiusKm)
             } else {
-                withAnimation { region.center = loc.coordinate }
+                // אם כבר מאזינים – רק מעדכנים פילטר
+                mapManager.updateFilter(center: loc.coordinate, radiusKm: radiusKm)
             }
-            reloadNearMe()
+        }
+        .onDisappear {
+            // כיבוי נקי של המאזין על המיין (במקום deinit ב-MapManager)
+            mapManager.stopListening()
+            didStartListening = false
         }
         .sheet(isPresented: $showPostDetail) {
             if let p = selectedPost { PostDetailView(post: p) }
         }
     }
 
-    // MARK: - Views
+    // MARK: - Overlays
 
     private var controlsOverlay: some View {
         VStack {
             Spacer()
             HStack {
+                // צ’יפ רדיוס – צד ימין
                 Menu {
                     ForEach([5, 10, 20, 30, 50], id: \.self) { km in
                         Button("\(km) ק״מ") {
                             radiusKm = Double(km)
-                            reloadNearMe()
+                            if let c = locationManager.location?.coordinate {
+                                mapManager.updateFilter(center: c, radiusKm: radiusKm)
+                            } else {
+                                mapManager.updateFilter(center: nil, radiusKm: radiusKm)
+                            }
                         }
                     }
                 } label: {
@@ -128,25 +134,25 @@ struct MapView: View {
                     .shadow(radius: 3)
                 }
                 .padding(.leading, 16)
-                .padding(.bottom, 100)
 
                 Spacer()
 
+                // כפתור "מרכז"
                 Button {
                     moveToCurrentLocation()
-                    reloadNearMe()
                 } label: {
                     Image(systemName: "location.fill")
                         .foregroundColor(.white)
                         .font(.title2)
-                        .frame(width: 50, height: 50)
+                        .frame(width: 52, height: 52)
                         .background(Color.logoBrown)
                         .clipShape(Circle())
                         .shadow(radius: 4)
                 }
                 .padding(.trailing, 16)
-                .padding(.bottom, 100)
             }
+            .padding(.bottom, 16) // ↓ נמוך יותר
+            .ignoresSafeArea(edges: .bottom)
         }
     }
 
@@ -163,8 +169,15 @@ struct MapView: View {
 
     // MARK: - Actions
 
-    private func reloadNearMe() {
-        mapManager.loadLocationPosts(near: locationManager.location?.coordinate, withinKm: radiusKm)
+    private func forceRefresh() {
+        if let c = locationManager.location?.coordinate {
+            didStartListening = true                 // חשוב כדי למנוע התחלה כפולה
+            mapManager.startListening(near: c, withinKm: radiusKm) // מאפס מאזין + מאזין מחדש
+            moveCamera(to: c, span: 0.05)
+        } else {
+            // אם אין מיקום – רק ליישם פילטר קיים על הדאטה הנוכחית
+            mapManager.refreshIfNeeded()
+        }
     }
 
     private func moveToCurrentLocation() {
@@ -172,17 +185,22 @@ struct MapView: View {
             locationManager.requestLocationPermission()
             return
         }
+        moveCamera(to: loc.coordinate, span: 0.01)
+        mapManager.updateFilter(center: loc.coordinate, radiusKm: radiusKm)
+    }
+
+    private func moveCamera(to coordinate: CLLocationCoordinate2D, span: CLLocationDegrees) {
         if #available(iOS 17.0, *) {
             withAnimation(.easeInOut(duration: 1.0)) {
                 cameraPosition = .region(MKCoordinateRegion(
-                    center: loc.coordinate,
-                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                    center: coordinate,
+                    span: MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span)
                 ))
             }
         } else {
             withAnimation(.easeInOut(duration: 1.0)) {
-                region.center = loc.coordinate
-                region.span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                region.center = coordinate
+                region.span = MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span)
             }
         }
     }
@@ -201,7 +219,6 @@ private struct UserLocationMarker: View {
     }
 }
 
-// MARK: - Post Map Marker
 struct PostMapMarker: View {
     let post: LocationPost
     let onTap: () -> Void
@@ -231,11 +248,17 @@ struct PostMapMarker: View {
                         .font(.system(size: 16))
                 }
             }
+            // ↓↓↓ מגדיל משמעותית את אזור הנגיעה
+            .padding(12)
+            .contentShape(Circle())    // מתאים לצורה עגולה
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text(post.petName.isEmpty ? "פוסט" : post.petName))
+        .allowsHitTesting(true)
     }
 }
+
+
 // MARK: - Post Detail View
 struct PostDetailView: View {
     let post: LocationPost

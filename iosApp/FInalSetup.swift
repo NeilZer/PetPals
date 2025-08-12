@@ -1,465 +1,370 @@
-
 import SwiftUI
-import Firebase
+import Foundation
+import UIKit
+import UserNotifications
+import FirebaseAuth
 
-// MARK: - Missing Components & Final Setup
+// MARK: - App Constants
+struct AppConstants {
+    // Firestore
+    static let usersCollection = "users"
+    static let postsCollection = "posts"
+    static let commentsCollection = "comments"
 
-// Fix for UserProfile in EditProfileManager
-extension UserProfile {
-    var petBreeed: String {
-        return petBreed // Fix typo from original code
+    // Storage (מותאם לכללים החדשים)
+    static let profileImagesPath = "profileImages"
+    static let postImagesPath    = "postImages"
+
+    // Limits
+    static let maxImageSize: CGFloat = 1024
+    static let imageCompressionQuality: CGFloat = 0.85
+    static let maxPostTextLength = 500
+    static let maxCommentTextLength = 200
+
+    // Animations
+    static let shortAnimation = 0.2
+    static let mediumAnimation = 0.4
+    static let longAnimation = 0.6
+}
+
+// MARK: - Utilities
+extension String {
+    var trimmed: String { trimmingCharacters(in: .whitespacesAndNewlines) }
+
+    var isValidEmail: Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        return NSPredicate(format:"SELF MATCHES %@", emailRegEx).evaluate(with: self)
+    }
+
+    func truncated(to length: Int) -> String {
+        count > length ? String(prefix(length)) + "..." : self
     }
 }
 
-// MARK: - Enhanced Auth Manager with Better Error Handling
-class EnhancedAuthManager: ObservableObject {
-    @Published var isLoggedIn = false
-    @Published var currentUser: User?
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    
-    private var authHandle: AuthStateDidChangeListenerHandle?
-    
-    init() {
-        checkAuthState()
+extension UIImage {
+    func resized(to size: CGSize) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        defer { UIGraphicsEndImageContext() }
+        draw(in: CGRect(origin: .zero, size: size))
+        return UIGraphicsGetImageFromCurrentImageContext()
     }
-    
-    func checkAuthState() {
-        authHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            DispatchQueue.main.async {
-                self?.currentUser = user
-                self?.isLoggedIn = user != nil
-            }
-        }
+
+    func resizedToFit(maxSize: CGFloat) -> UIImage? {
+        guard max(size.width, size.height) > maxSize else { return self }
+        let ratio = min(maxSize / size.width, maxSize / size.height)
+        return resized(to: CGSize(width: size.width * ratio, height: size.height * ratio))
     }
-    
-    func signIn(email: String, password: String) async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            try await Auth.auth().signIn(withEmail: email, password: password)
-        } catch {
-            errorMessage = handleAuthError(error)
-        }
-        
-        isLoading = false
-    }
-    
-    func createUser(email: String, password: String) async -> Bool {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            let result = try await Auth.auth().createUser(withEmail: email, password: password)
-            try await result.user.sendEmailVerification()
-            errorMessage = "נשלח מייל אימות ל-\(email), בדקו את תיבת הדואר שלכם"
-            isLoading = false
-            return true
-        } catch {
-            errorMessage = handleAuthError(error)
-            isLoading = false
-            return false
-        }
-    }
-    
-    func signOut() {
-        try? Auth.auth().signOut()
-    }
-    
-    private func handleAuthError(_ error: Error) -> String {
-        if let authError = error as NSError? {
-            switch authError.localizedDescription {
-            case let msg where msg.contains("password"):
-                return "סיסמה שגויה"
-            case let msg where msg.contains("email"):
-                return "כתובת אימייל לא קיימת"
-            case let msg where msg.contains("already in use"):
-                return "כתובת האימייל כבר קיימת במערכת"
-            case let msg where msg.contains("weak"):
-                return "הסיסמה חלשה מדי"
-            case let msg where msg.contains("invalid"):
-                return "כתובת אימייל לא תקינה"
-            default:
-                return error.localizedDescription
-            }
-        }
-        return "שגיאה לא ידועה"
-    }
-    
-    deinit {
-        if let handle = authHandle {
-            Auth.auth().removeStateDidChangeListener(handle)
+}
+
+// MARK: - Loading / Errors
+enum LoadingState: Equatable {
+    case idle, loading, loaded, error(String)
+
+    var isLoading: Bool { if case .loading = self { return true } else { return false } }
+    var errorMessage: String? { if case .error(let m) = self { return m } else { return nil } }
+}
+
+enum PetPalsError: LocalizedError {
+    case networkError, authenticationRequired, invalidData, uploadFailed, permissionDenied, custom(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .networkError: return "בעיה בחיבור לאינטרנט"
+        case .authenticationRequired: return "נדרשת התחברות למערכת"
+        case .invalidData: return "מידע לא תקין"
+        case .uploadFailed: return "העלאה נכשלה"
+        case .permissionDenied: return "אין הרשאות מתאימות"
+        case .custom(let msg): return msg
         }
     }
 }
 
-// MARK: - Offline Support Manager
-class OfflineManager: ObservableObject {
+// MARK: - Haptics
+struct HapticFeedback {
+    static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
+        UIImpactFeedbackGenerator(style: style).impactOccurred()
+    }
+    static func notification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
+        UINotificationFeedbackGenerator().notificationOccurred(type)
+    }
+    static func selection() { UISelectionFeedbackGenerator().selectionChanged() }
+}
+
+// MARK: - Image Cache (אחוד – זיכרון + דיסק)
+final class ImageCache: ObservableObject {
+    static let shared = ImageCache()
+
+    private let mem = NSCache<NSString, UIImage>()
+    private let fm = FileManager.default
+
+    private init() {
+        mem.countLimit = 150
+        mem.totalCostLimit = 60 * 1024 * 1024
+    }
+
+    func image(for key: String) -> UIImage? {
+        if let img = mem.object(forKey: key as NSString) { return img }
+        let url = diskURL(for: key)
+        guard let data = try? Data(contentsOf: url), let img = UIImage(data: data) else { return nil }
+        mem.setObject(img, forKey: key as NSString)
+        return img
+    }
+
+    func set(_ image: UIImage, for key: String) {
+        mem.setObject(image, forKey: key as NSString)
+        if let data = image.jpegData(compressionQuality: 0.85) {
+            try? data.write(to: diskURL(for: key), options: .atomic)
+        }
+    }
+
+    func clear() {
+        mem.removeAllObjects()
+        let dir = documentsDir()
+        if let items = try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) {
+            for url in items where url.lastPathComponent.hasPrefix("imgcache_") { try? fm.removeItem(at: url) }
+        }
+    }
+
+    private func diskURL(for key: String) -> URL {
+        documentsDir().appendingPathComponent("imgcache_\(key.hashValue).jpg")
+    }
+    private func documentsDir() -> URL {
+        fm.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
+}
+
+// MARK: - CachedImage (תחליף תקין ל-CachedAsyncImage)
+final class ImageLoader: ObservableObject {
+    @Published var image: UIImage?
+    private var task: URLSessionDataTask?
+
+    func load(from url: URL?) {
+        guard let url else { return }
+        let key = url.absoluteString
+        if let cached = ImageCache.shared.image(for: key) {
+            image = cached
+            return
+        }
+        task?.cancel()
+        task = URLSession.shared.dataTask(with: url) { data, _, _ in
+            guard let data, let img = UIImage(data: data) else { return }
+            ImageCache.shared.set(img, for: key)
+            DispatchQueue.main.async { self.image = img }
+        }
+        task?.resume()
+    }
+
+    deinit { task?.cancel() }
+}
+
+struct CachedImage<Placeholder: View>: View {
+    let url: URL?
+    var contentMode: ContentMode = .fill
+    @ViewBuilder var placeholder: () -> Placeholder
+
+    @StateObject private var loader = ImageLoader()
+
+    var body: some View {
+        Group {
+            if let ui = loader.image {
+                Image(uiImage: ui).resizable().aspectRatio(contentMode: contentMode)
+            } else {
+                placeholder()
+            }
+        }
+        .onAppear { loader.load(from: url) }
+    }
+}
+
+// MARK: - Validation
+struct ValidationHelper {
+    static func validatePetName(_ name: String) -> String? {
+        let t = name.trimmed
+        if t.isEmpty { return "נא להכניס שם לחיית המחמד" }
+        if t.count < 2 { return "השם חייב להכיל לפחות 2 תווים" }
+        if t.count > 30 { return "השם לא יכול להכיל יותר מ-30 תווים" }
+        return nil
+    }
+
+    static func validatePostText(_ text: String) -> String? {
+        let t = text.trimmed
+        if t.isEmpty { return "נא להכניס תוכן לפוסט" }
+        if t.count > AppConstants.maxPostTextLength { return "הפוסט לא יכול להכיל יותר מ-\(AppConstants.maxPostTextLength) תווים" }
+        return nil
+    }
+
+    static func validateCommentText(_ text: String) -> String? {
+        let t = text.trimmed
+        if t.isEmpty { return "נא להכניס תוכן לתגובה" }
+        if t.count > AppConstants.maxCommentTextLength { return "התגובה לא יכולה להכיל יותר מ-\(AppConstants.maxCommentTextLength) תווים" }
+        return nil
+    }
+
+    static func validateEmail(_ email: String) -> String? {
+        let t = email.trimmed
+        if t.isEmpty { return "נא להכניס כתובת אימייל" }
+        if !t.isValidEmail { return "כתובת אימייל לא תקינה" }
+        return nil
+    }
+
+    static func validatePassword(_ password: String) -> String? {
+        if password.isEmpty { return "נא להכניס סיסמה" }
+        if password.count < 6 { return "הסיסמה חייבת להכיל לפחות 6 תווים" }
+        return nil
+    }
+}
+
+// MARK: - Modifiers
+struct LoadingModifier: ViewModifier {
+    let isLoading: Bool
+    func body(content: Content) -> some View {
+        content
+            .disabled(isLoading)
+            .overlay {
+                if isLoading {
+                    Color.black.opacity(0.3)
+                        .overlay { ProgressView().progressViewStyle(.circular).scaleEffect(1.2) }
+                }
+            }
+    }
+}
+struct ShakeEffect: GeometryEffect {
+    var amount: CGFloat = 10
+    var shakesPerUnit = 3
+    var animatableData: CGFloat
+    func effectValue(size: CGSize) -> ProjectionTransform {
+        ProjectionTransform(CGAffineTransform(translationX: amount * sin(animatableData * .pi * CGFloat(shakesPerUnit)), y: 0))
+    }
+}
+extension View {
+    func loading(_ isLoading: Bool) -> some View { modifier(LoadingModifier(isLoading: isLoading)) }
+    func shake(with attempts: Int) -> some View { modifier(ShakeEffect(animatableData: CGFloat(attempts))) }
+}
+
+// MARK: - Analytics (אחוד)
+final class AnalyticsManager {
+    static let shared = AnalyticsManager()
+    private init() {}
+
+    func logEvent(_ name: String, parameters: [String: Any]? = nil) {
+        #if DEBUG
+        print("📊 Analytics Event: \(name) - \(parameters ?? [:])")
+        #endif
+        // Firebase Analytics? -> Analytics.logEvent(name, parameters: parameters)
+    }
+
+    struct Event {
+        static func postCreated(hasImage: Bool, hasLocation: Bool) -> (String, [String: Any]) {
+            ("post_created", ["has_image": hasImage, "has_location": hasLocation])
+        }
+        static let postLiked = ("post_liked", [:] as [String: Any])
+        static let commentAdded = ("comment_added", [:] as [String: Any])
+        static let profileUpdated = ("profile_updated", [:] as [String: Any])
+    }
+}
+
+// MARK: - Timers & Performance
+/// טיימר פשוט למדידות – כדי לא להתנגש בשם הישן
+final class PerfTimer {
+    static let shared = PerfTimer()
+    private var startTimes: [String: CFTimeInterval] = [:]
+    private init() {}
+
+    func start(_ key: String) { startTimes[key] = CACurrentMediaTime() }
+    func stop(_ key: String) {
+        guard let t = startTimes[key] else { return }
+        print("⏱️ \(key): \(String(format: "%.3f", CACurrentMediaTime() - t))s")
+        startTimes.removeValue(forKey: key)
+    }
+}
+
+/// מנהל מצב ביצועים (ללא שימוש ב-mach_* כדי למנוע תלויות)
+final class PerformanceModeManager: ObservableObject {
+    @Published var isLowPerformanceMode = false
+    func enable() { isLowPerformanceMode = true }
+    func disable() { isLowPerformanceMode = false }
+}
+
+// MARK: - Offline Queue
+final class OfflineManager: ObservableObject {
     @Published var isOnline = true
-    @Published var pendingActions: [PendingAction] = []
-    
+    @Published private(set) var pending: [PendingAction] = []
+
     struct PendingAction: Identifiable, Codable {
         let id = UUID()
         let type: ActionType
         let data: Data
         let timestamp: Date
-        
-        enum ActionType: String, Codable {
-            case newPost
-            case likePost
-            case addComment
-            case updateProfile
-        }
+        enum ActionType: String, Codable { case newPost, likePost, addComment, updateProfile }
     }
-    
-    func addPendingAction(_ action: PendingAction) {
-        pendingActions.append(action)
-        savePendingActions()
+
+    func add(_ action: PendingAction) {
+        pending.append(action); persist()
     }
-    
-    func processPendingActions() {
-        // Process pending actions when back online
-        for action in pendingActions {
-            // Implementation depends on action type
-            processSingleAction(action)
-        }
-        
-        pendingActions.removeAll()
-        savePendingActions()
+    func processAll(_ handler: (PendingAction) -> Void) {
+        pending.forEach(handler)
+        pending.removeAll(); persist()
     }
-    
-    private func processSingleAction(_ action: PendingAction) {
-        // Implementation for processing different action types
-        switch action.type {
-        case .newPost:
-            // Process pending post upload
-            break
-        case .likePost:
-            // Process pending like
-            break
-        case .addComment:
-            // Process pending comment
-            break
-        case .updateProfile:
-            // Process pending profile update
-            break
-        }
-    }
-    
-    private func savePendingActions() {
-        if let data = try? JSONEncoder().encode(pendingActions) {
+
+    private func persist() {
+        if let data = try? JSONEncoder().encode(pending) {
             UserDefaults.standard.set(data, forKey: "pendingActions")
         }
     }
-    
-    private func loadPendingActions() {
+    private func restore() {
         if let data = UserDefaults.standard.data(forKey: "pendingActions"),
-           let actions = try? JSONDecoder().decode([PendingAction].self, from: data) {
-            pendingActions = actions
+           let arr = try? JSONDecoder().decode([PendingAction].self, from: data) {
+            pending = arr
         }
     }
-    
-    init() {
-        loadPendingActions()
-    }
+    init() { restore() }
 }
 
-// MARK: - Cache Manager for Offline Images
-class CacheManager {
-    static let shared = CacheManager()
-    private let imageCache = NSCache<NSString, UIImage>()
-    private let fileManager = FileManager.default
-    
-    private init() {
-        imageCache.countLimit = 100
-        imageCache.totalCostLimit = 50 * 1024 * 1024 // 50MB
-    }
-    
-    func cacheImage(_ image: UIImage, forKey key: String) {
-        imageCache.setObject(image, forKey: NSString(string: key))
-        
-        // Also save to disk
-        if let data = image.jpegData(compressionQuality: 0.8) {
-            let url = cacheURL(for: key)
-            try? data.write(to: url)
-        }
-    }
-    
-    func getCachedImage(forKey key: String) -> UIImage? {
-        // Check memory cache first
-        if let image = imageCache.object(forKey: NSString(string: key)) {
-            return image
-        }
-        
-        // Check disk cache
-        let url = cacheURL(for: key)
-        if let data = try? Data(contentsOf: url),
-           let image = UIImage(data: data) {
-            imageCache.setObject(image, forKey: NSString(string: key))
-            return image
-        }
-        
-        return nil
-    }
-    
-    private func cacheURL(for key: String) -> URL {
-        let documentsPath = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        return documentsPath.appendingPathComponent("\(key.hashValue).jpg")
-    }
-    
-    func clearCache() {
-        imageCache.removeAllObjects()
-        
-        // Clear disk cache
-        let documentsPath = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        if let enumerator = fileManager.enumerator(at: documentsPath, includingPropertiesForKeys: nil) {
-            for case let fileURL as URL in enumerator {
-                if fileURL.pathExtension == "jpg" {
-                    try? fileManager.removeItem(at: fileURL)
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Enhanced AsyncImage with Caching
-struct CachedAsyncImage<Content: View>: View {
-    let url: URL?
-    let content: (AsyncImagePhase) -> Content
-    
-    @State private var cachedImage: UIImage?
-    
-    init(url: URL?, @ViewBuilder content: @escaping (AsyncImagePhase) -> Content) {
-        self.url = url
-        self.content = content
-    }
-    
-    var body: some View {
-        Group {
-            if let cachedImage = cachedImage {
-                content(.success(Image(uiImage: cachedImage)))
-            } else {
-                AsyncImage(url: url) { phase in
-                    content(phase)
-                        .onAppear {
-                            if case .success(let image) = phase,
-                               let url = url {
-                                // Cache the loaded image
-                                let key = url.absoluteString
-                                if let uiImage = UIImage(data: Data()) { // This should be the actual image data
-                                    CacheManager.shared.cacheImage(uiImage, forKey: key)
-                                }
-                            }
-                        }
-                }
-            }
-        }
-        .onAppear {
-            if let url = url {
-                let key = url.absoluteString
-                cachedImage = CacheManager.shared.getCachedImage(forKey: key)
-            }
-        }
-    }
-}
-
-// MARK: - Push Notifications Manager (Optional)
-import UserNotifications
-
-class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
+// MARK: - Notifications
+final class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
     @Published var hasPermission = false
-    
+
     override init() {
         super.init()
         UNUserNotificationCenter.current().delegate = self
     }
-    
+
     func requestPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { [weak self] granted, error in
-            DispatchQueue.main.async {
-                self?.hasPermission = granted
-            }
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { [weak self] granted, _ in
+            DispatchQueue.main.async { self?.hasPermission = granted }
         }
     }
-    
-    func scheduleLocalNotification(title: String, body: String, timeInterval: TimeInterval) {
+
+    func scheduleLocal(title: String, body: String, in seconds: TimeInterval) {
         let content = UNMutableNotificationContent()
-        content.title = title
-        content.body = body
-        content.sound = .default
-        
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request)
+        content.title = title; content.body = body; content.sound = .default
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false)
+        let req = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(req)
     }
-    
-    // MARK: - UNUserNotificationCenterDelegate
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+
+    // Foreground presentation
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.alert, .badge, .sound])
     }
 }
 
-// MARK: - Analytics Helper (Optional)
-class AnalyticsManager {
-    static let shared = AnalyticsManager()
-    
-    private init() {}
-    
-    func logEvent(_ name: String, parameters: [String: Any]? = nil) {
-        #if DEBUG
-        print("📊 Analytics Event: \(name) - \(parameters ?? [:])")
-        #endif
-        
-        // If using Firebase Analytics:
-        // Analytics.logEvent(name, parameters: parameters)
-    }
-    
-    func logScreenView(_ screenName: String) {
-        logEvent("screen_view", parameters: ["screen_name": screenName])
-    }
-    
-    func logUserAction(_ action: String, item: String? = nil) {
-        var parameters: [String: Any] = ["action": action]
-        if let item = item {
-            parameters["item"] = item
-        }
-        logEvent("user_action", parameters: parameters)
-    }
+// MARK: - Date Formatters
+extension DateFormatter {
+    static let shared: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale.current
+        return f
+    }()
+    static let shortDate: DateFormatter = {
+        let f = DateFormatter.shared
+        f.dateStyle = .short; f.timeStyle = .none
+        return f
+    }()
+    static let shortTime: DateFormatter = {
+        let f = DateFormatter.shared
+        f.dateStyle = .none; f.timeStyle = .short
+        return f
+    }()
 }
-
-// MARK: - Performance Monitor
-class PerformanceMonitor: ObservableObject {
-    @Published var isLowPerformanceMode = false
-    
-    func enableLowPerformanceMode() {
-        isLowPerformanceMode = true
-        // Reduce image quality, disable animations, etc.
-    }
-    
-    func disableLowPerformanceMode() {
-        isLowPerformanceMode = false
-    }
-    
-    func checkPerformance() {
-        // Monitor memory usage, CPU usage, etc.
-        let info = mach_task_basic_info()
-        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size)/4
-        
-        let kerr: kern_return_t = withUnsafeMutablePointer(to: &info) {
-            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
-                task_info(mach_task_self_, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &count)
-            }
-        }
-        
-        if kerr == KERN_SUCCESS {
-            let memoryUsage = info.resident_size
-            // If memory usage is high, enable low performance mode
-            if memoryUsage > 200 * 1024 * 1024 { // 200MB threshold
-                enableLowPerformanceMode()
-            }
-        }
-    }
-}
-
-// MARK: - App State Manager
-class AppStateManager: ObservableObject {
-    @Published var currentTab = 0
-    @Published var isAppActive = true
-    @Published var lastActiveTime: Date = Date()
-    
-    func updateLastActiveTime() {
-        lastActiveTime = Date()
-    }
-    
-    func handleAppBackground() {
-        isAppActive = false
-        // Save any pending data
-    }
-    
-    func handleAppForeground() {
-        isAppActive = true
-        updateLastActiveTime()
-        // Refresh data if needed
-    }
-}
-
-// MARK: - Final App Integration Example
-struct EnhancedPetPalsApp: App {
-    @StateObject private var authManager = EnhancedAuthManager()
-    @StateObject private var networkManager = NetworkManager()
-    @StateObject private var offlineManager = OfflineManager()
-    @StateObject private var appStateManager = AppStateManager()
-    @StateObject private var notificationManager = NotificationManager()
-    
-    var body: some Scene {
-        WindowGroup {
-            Group {
-                if authManager.isLoggedIn {
-                    MainTabView()
-                        .environmentObject(authManager)
-                        .environmentObject(networkManager)
-                        .environmentObject(offlineManager)
-                        .environmentObject(appStateManager)
-                } else {
-                    LoginView()
-                        .environmentObject(authManager)
-                }
-            }
-            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-                appStateManager.handleAppForeground()
-                if networkManager.isConnected {
-                    offlineManager.processPendingActions()
-                }
-            }
-            .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
-                appStateManager.handleAppBackground()
-            }
-            .onChange(of: networkManager.isConnected) { isConnected in
-                if isConnected {
-                    offlineManager.processPendingActions()
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Test Data Helper (for development)
-#if DEBUG
-class TestDataHelper {
-    static let shared = TestDataHelper()
-    
-    func createSamplePosts() -> [FeedPost] {
-        return [
-            FeedPost(
-                userId: "user1",
-                text: "הטיול הראשון שלנו בפארק!",
-                imageUrl: "https://example.com/image1.jpg",
-                likes: 15,
-                timestamp: Date().addingTimeInterval(-3600).timeIntervalSince1970,
-                likedBy: ["user2", "user3"],
-                location: "פארק הירקון"
-            ),
-            FeedPost(
-                userId: "user2",
-                text: "מקס אוהב לשחק בכדור",
-                imageUrl: "https://example.com/image2.jpg",
-                likes: 8,
-                timestamp: Date().addingTimeInterval(-7200).timeIntervalSince1970,
-                likedBy: ["user1"],
-                location: "הבית"
-            )
-        ]
-    }
-    
-    func createSampleProfile() -> UserProfile {
-        return UserProfile(
-            petName: "מקס",
-            petAge: 3,
-            petBreed: "גולדן רטריבר",
-            petImage: "https://example.com/profile.jpg"
-        )
-    }
-}
-#endif

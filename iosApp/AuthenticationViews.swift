@@ -164,36 +164,46 @@ struct LogoView: View {
             .accessibilityHidden(true)
     }
 }
-
 // MARK: - Login View
 struct LoginView: View {
     @EnvironmentObject var authManager: AuthManager
+    @Environment(\.verticalSizeClass) private var vClass
+    @Environment(\.dynamicTypeSize)   private var typeSize
+
     @State private var email = ""
     @State private var password = ""
 
-    // במקום שני .sheet נפרדים – enum אחד
     enum AuthSheet: Identifiable { case signUp, forgot
         var id: Int { hashValue }
     }
     @State private var activeSheet: AuthSheet?
 
+    // התאמות רספונסיביות קטנות
+    private var headerGap: CGFloat { vClass == .compact ? 8 : 12 }
+    private var formSpacing: CGFloat { vClass == .compact ? 8 : 10 }
+    private var logoSize: CGFloat {
+        var base: CGFloat = (vClass == .compact ? 220 : 280)
+        if typeSize.isAccessibilitySize { base -= 40 }
+        return max(180, base)
+    }
+
     var body: some View {
         NavigationStack {
-            VStack(spacing: 30) {
-                Spacer()
+            VStack(spacing: 12) {
+                Spacer(minLength: 6)
 
                 // Header + Logo
-                VStack(spacing: 16) {
-                    LogoView(size: 350) // ← הלוגו שלך
+                VStack(spacing: 8) {
+                    LogoView(size: logoSize)
                     Text("שתפו את המסע עם חיות המחמד שלכם")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                 }
-                .padding(.bottom, 30)
+                .padding(.bottom, headerGap)
 
                 // Form
-                VStack(spacing: 10) {
+                VStack(spacing: formSpacing) {
                     TextField("אימייל", text: $email)
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
@@ -208,6 +218,7 @@ struct LoginView: View {
                             .foregroundColor(.red)
                             .font(.caption)
                             .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
 
                     Button("התחבר") {
@@ -218,25 +229,25 @@ struct LoginView: View {
 
                     HStack {
                         Button("שכחתי סיסמה") { activeSheet = .forgot }
-                            .font(.caption).foregroundColor(.logoBrown)
+                            .font(.caption)
+                            .foregroundColor(.logoBrown)
 
                         Spacer()
 
                         Button("הרשמה") { activeSheet = .signUp }
-                            .font(.caption).foregroundColor(.logoBrown)
+                            .font(.caption)
+                            .foregroundColor(.logoBrown)
                     }
                 }
-                .padding(.horizontal, 32)
+                .padding(.horizontal, 24)
 
-                Spacer()
+                Spacer(minLength: 6)
             }
             .background(Color.logoBackground)
             .sheet(item: $activeSheet) { item in
                 switch item {
-                case .signUp:
-                    SignUpView().environmentObject(authManager)
-                case .forgot:
-                    ForgotPasswordView()
+                case .signUp:  SignUpView().environmentObject(authManager)
+                case .forgot:  ForgotPasswordView()
                 }
             }
         }
@@ -247,6 +258,8 @@ struct LoginView: View {
 struct SignUpView: View {
     @EnvironmentObject var authManager: AuthManager
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.verticalSizeClass) private var vClass
+    @Environment(\.dynamicTypeSize)   private var typeSize
 
     @State private var email = ""
     @State private var password = ""
@@ -254,22 +267,30 @@ struct SignUpView: View {
     @State private var petName = ""
     @State private var agreeToTerms = false
 
+    private var headerGap: CGFloat { vClass == .compact ? 10 : 12 }
+    private var formSpacing: CGFloat { vClass == .compact ? 10 : 12 }
+    private var logoSize: CGFloat {
+        var base: CGFloat = (vClass == .compact ? 160 : 220)
+        if typeSize.isAccessibilitySize { base -= 30 }
+        return max(150, base)
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 16) {
                     // Header + Logo
                     VStack(spacing: 8) {
-                        LogoView(size: 300)  // ← הלוגו גם כאן
-                        Text("Join Us!")
+                        LogoView(size: logoSize)
+                        Text("הצטרפו ל-PetPals")
                             .font(.title2).fontWeight(.bold)
                             .foregroundColor(.logoBrown)
                     }
-                    .padding(.top, 20)
+                    .padding(.top, 12)
+                    .padding(.bottom, headerGap)
 
                     // Form
-                    VStack(spacing: 16) {
+                    VStack(spacing: formSpacing) {
                         TextField("שם חיית המחמד", text: $petName)
                             .textFieldStyle(PetPalsTextFieldStyle())
 
@@ -290,6 +311,7 @@ struct SignUpView: View {
                                 .foregroundColor(errorMessage.contains("נשלח מייל") ? .green : .red)
                                 .font(.caption)
                                 .multilineTextAlignment(.center)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
 
                         Toggle("אני מסכים לתנאי השימוש", isOn: $agreeToTerms)
@@ -298,15 +320,13 @@ struct SignUpView: View {
                         Button("הירשם") {
                             Task {
                                 let ok = await authManager.createUser(email: email, password: password, petName: petName)
-                                if ok {
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) { dismiss() }
-                                }
+                                if ok { DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { dismiss() } }
                             }
                         }
                         .buttonStyle(PrimaryButtonStyle())
                         .disabled(authManager.isLoading || !isFormValid)
                     }
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, 24)
                 }
             }
             .navigationTitle("הרשמה")
@@ -319,8 +339,6 @@ struct SignUpView: View {
         }
     }
 
-
-    
     private var isFormValid: Bool {
         !email.isEmpty &&
         !password.isEmpty &&
