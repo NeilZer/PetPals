@@ -1,7 +1,9 @@
 plugins {
     id("com.android.library")
+    // אם אין ניהול גרסאות מרכזי, הוסיפי גם כאן גרסה זהה:
+    // kotlin("multiplatform") version "1.9.24"
     kotlin("multiplatform")
-    kotlin("plugin.serialization") version "1.9.24" // ← החזרת הגרסה כאן
+    kotlin("plugin.serialization") version "1.9.24"
 }
 
 kotlin {
@@ -29,29 +31,39 @@ kotlin {
                 implementation("io.ktor:ktor-client-logging:2.3.12")
             }
         }
+
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
             }
         }
+
         val androidMain by getting {
             dependencies {
+                // Ktor לאנדרואיד
                 implementation("io.ktor:ktor-client-okhttp:2.3.12")
+
+                // קורוטינות
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
-                implementation("com.google.android.gms:play-services-location:21.2.0")
-                // אם מימושי actual באנדרואיד משתמשים בפיירבייס:
+
+                // מיקום (גרסה אחידה ועדכנית)
+                implementation("com.google.android.gms:play-services-location:21.3.0")
+
+                // Firebase (אם ה-actual באנדרואיד משתמש)
                 implementation("com.google.firebase:firebase-auth-ktx:23.1.0")
                 implementation("com.google.firebase:firebase-firestore-ktx:25.1.0")
                 implementation("com.google.firebase:firebase-storage-ktx:21.0.0")
             }
         }
+
         val androidUnitTest by getting
 
         if (isMac) {
             val iosMain by getting {
                 dependencies {
+                    // Ktor ל-iOS
                     implementation("io.ktor:ktor-client-darwin:2.3.12")
                 }
             }
@@ -64,7 +76,4 @@ android {
     namespace = "com.petpals.shared"
     compileSdk = 34
     defaultConfig { minSdk = 24 }
-}
-dependencies {
-    implementation("com.google.android.gms:play-services-location:21.3.0")
 }
