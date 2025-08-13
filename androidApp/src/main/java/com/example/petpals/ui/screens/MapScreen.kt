@@ -3,7 +3,7 @@ package com.example.petpals.ui.screens
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Point
+import android.graphics.*
 import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -18,8 +18,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import coil.ImageLoader
-import android.graphics.*
 import coil.imageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
@@ -28,7 +26,10 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.maps.android.compose.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -55,9 +56,8 @@ fun MapScreen(
     var currentUserData by remember { mutableStateOf<MapUserMarker?>(null) }
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
-    // לשמור איזה פוסט נבחר להצגה מעל הסמן
+    // איזה פוסט נבחר + רפרנס למפה
     var selectedPostForDisplay by remember { mutableStateOf<MapPostMarker?>(null) }
-    // לשמור reference למפה עבור המרה של LatLng לנקודת מסך
     var mapInstance by remember { mutableStateOf<GoogleMap?>(null) }
 
     LaunchedEffect(Unit) {
@@ -89,32 +89,34 @@ fun MapScreen(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("MapScreen", "Failed to init location/data", e)
             }
         }
     }
 
     val cameraPositionState = rememberCameraPositionState()
     LaunchedEffect(currentLocation, selectedPostLocation) {
-        val targetLocation = selectedPostLocation ?: currentLocation?.let { LatLng(it.latitude, it.longitude) }
-        targetLocation?.let {
+        val target = selectedPostLocation ?: currentLocation?.let { LatLng(it.latitude, it.longitude) }
+        target?.let {
             cameraPositionState.position = CameraPosition.fromLatLngZoom(it, 16f)
         }
     }
 
     val density = LocalDensity.current
+    val isLocGranted = locationPermissionState.status.isGranted
 
     Box(Modifier.fillMaxSize()) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = false),
-            onMapClick = {
-                selectedPostForDisplay = null
+            properties = MapProperties(isMyLocationEnabled = isLocGranted),
+            onMapClick = { selectedPostForDisplay = null }
+        ) {
+            // לוכדים את המפה כדי להשתמש ב-projection
+            MapEffect {
+                mapInstance = it
             }
-            // אין onMapLongClick, onPOIClick, onMapReady ב-Compose API
-        )
-         {
+
             // סמן המשתמש הנוכחי
             currentLocation?.let { loc ->
                 Marker(
@@ -138,14 +140,8 @@ fun MapScreen(
                     Marker(
                         state = MarkerState(position = user.latLng),
                         title = user.petName,
-                        snippet = currentLocation?.let {
-                            val distance = calculateDistance(
-                                it.latitude, it.longitude,
-                                user.latLng.latitude, user.latLng.longitude
-                            )
-                            "מרחק: %.1f ק\"מ".format(distance / 1000)
-                        } ?: "",
-                        icon = user.bitmapDescriptor ?: BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE),
+                        icon = user.bitmapDescriptor
+                            ?: BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE),
                         onClick = {
                             Log.d("MapScreen", "סמן של משתמש ${user.userId} נלחץ - פתח פרופיל")
                             navController.navigate("profile/${user.userId}")
@@ -161,12 +157,11 @@ fun MapScreen(
                     state = MarkerState(post.latLng),
                     title = post.petName,
                     snippet = post.text.take(50),
-                    icon = post.bitmapDescriptor ?: BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
+                    icon = post.bitmapDescriptor
+                        ?: BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
                     onClick = {
                         Log.d("MapScreen", "סמן פוסט נלחץ - פתח פרטי פוסט: ${post.postId}")
-                        // עדכון הפוסט שנבחר להצגה מעל הסמן
-                        selectedPostForDisplay = post
-                        // ניווט לפרטי פוסט
+                        selectedPostForDisplay = post   // תצוגה מעל הסמן (לבחירתך)
                         navController.navigate("postDetail/${post.postId}")
                         true
                     }
@@ -182,14 +177,12 @@ fun MapScreen(
             }
         }
 
-        // הצגת תמונת הפוסט מעל הסמן, עם חשבון מיקום ממפה לנקודת מסך
+        // תמונת הפוסט מעל הסמן
         selectedPostForDisplay?.let { post ->
             val point = mapInstance?.projection?.toScreenLocation(post.latLng)
             point?.let { screenPoint ->
-                // המרה מ-Pixels ל-DP
                 val xDp = with(density) { screenPoint.x.toDp() }
                 val yDp = with(density) { screenPoint.y.toDp() }
-                // הזזה למעלה ולצד (כדי שהתמונה לא תכסה את הסמן עצמו)
                 val offsetX = xDp - 64.dp
                 val offsetY = yDp - 150.dp
 
@@ -200,7 +193,7 @@ fun MapScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = rememberAsyncImagePainter(post.bitmapDescriptor?.toString() ?: post.petName),
+                        painter = rememberAsyncImagePainter(post.imageUrl),
                         contentDescription = "Post Image",
                         modifier = Modifier.fillMaxSize()
                     )
@@ -208,7 +201,7 @@ fun MapScreen(
             }
         }
 
-        // הצגת המרחק אם יש מיקום פוסט נבחר ומיקום נוכחי
+        // המרחק מהמיקום הנבחר (אם נשלח בפרמטרים)
         if (selectedPostLocation != null && currentLocation != null) {
             val distance = calculateDistance(
                 currentLocation!!.latitude,
@@ -217,7 +210,9 @@ fun MapScreen(
                 selectedPostLocation.longitude
             )
             Column(
-                modifier = Modifier.align(Alignment.TopCenter).padding(16.dp),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(text = "המרחק ממך: %.1f ק\"מ".format(distance / 1000))
@@ -226,7 +221,7 @@ fun MapScreen(
     }
 }
 
-// פונקציות שלך להמשך, ללא שינוי
+// ====== עזרי טעינה ======
 
 suspend fun loadNearbyUsers(
     context: Context,
@@ -249,12 +244,10 @@ suspend fun loadNearbyUsers(
 
             val isNearby = currentLocation?.let {
                 val distance = calculateDistance(
-                    it.latitude,
-                    it.longitude,
-                    geoPoint.latitude,
-                    geoPoint.longitude
+                    it.latitude, it.longitude,
+                    geoPoint.latitude, geoPoint.longitude
                 )
-                distance <= 5000 // 5 ק"מ
+                distance <= 5_000 // 5 ק"מ
             } ?: true
 
             if (isNearby) {
@@ -272,7 +265,7 @@ suspend fun loadNearbyUsers(
         }
         onUsersLoaded(nearbyMarkers, currentUserMarker)
     } catch (e: Exception) {
-        e.printStackTrace()
+        Log.e("MapScreen", "loadNearbyUsers failed", e)
         onUsersLoaded(emptyList(), null)
     }
 }
@@ -289,52 +282,47 @@ suspend fun loadNearbyPosts(
         val nearbyPosts = mutableListOf<MapPostMarker>()
         for (doc in snapshot.documents) {
             val geoPoint = doc.getGeoPoint("location") ?: continue
-            val userId = doc.getString("userId") ?: continue
-            val petName = doc.getString("petName") ?: "Unknown Pet"
+            val petName = doc.getString("petName") ?: "Unknown Pet" // ייתכן ולא קיים במסמך
             val text = doc.getString("text") ?: ""
             val postId = doc.id
+            val imageUrl = doc.getString("imageUrl") ?: ""
 
             val isNearby = currentLocation?.let {
                 val distance = calculateDistance(
-                    it.latitude,
-                    it.longitude,
-                    geoPoint.latitude,
-                    geoPoint.longitude
+                    it.latitude, it.longitude,
+                    geoPoint.latitude, geoPoint.longitude
                 )
-                distance <= 5000 // 5 ק"מ
+                distance <= 5_000 // 5 ק"מ
             } ?: true
 
             if (isNearby) {
-                val bitmapDescriptor = createPostMarkerIcon(context, doc.getString("imageUrl"))
+                val icon = createPostMarkerIcon(context, imageUrl)
                 nearbyPosts.add(
                     MapPostMarker(
                         postId = postId,
                         petName = petName,
                         latLng = LatLng(geoPoint.latitude, geoPoint.longitude),
                         text = text,
-                        bitmapDescriptor = bitmapDescriptor
+                        imageUrl = imageUrl,
+                        bitmapDescriptor = icon
                     )
                 )
             }
         }
         onPostsLoaded(nearbyPosts)
     } catch (e: Exception) {
-        e.printStackTrace()
+        Log.e("MapScreen", "loadNearbyPosts failed", e)
         onPostsLoaded(emptyList())
     }
 }
 
-// פונקציות ליצירת אייקוני סמן מעוגלים
+// ====== ציור אייקון מעוגל לסמן ======
 
 suspend fun createUserMarkerIcon(context: Context, url: String?): BitmapDescriptor? {
     if (url.isNullOrEmpty()) return null
     return try {
         val loader = context.imageLoader
-        val request = ImageRequest.Builder(context)
-            .data(url)
-            .allowHardware(false)
-            .build()
-
+        val request = ImageRequest.Builder(context).data(url).allowHardware(false).build()
         val result = (loader.execute(request) as? SuccessResult)?.drawable ?: return null
 
         val width = if (result.intrinsicWidth > 0) result.intrinsicWidth else 100
@@ -365,7 +353,7 @@ suspend fun createUserMarkerIcon(context: Context, url: String?): BitmapDescript
 
         BitmapDescriptorFactory.fromBitmap(output)
     } catch (e: Exception) {
-        e.printStackTrace()
+        Log.e("MapScreen", "createUserMarkerIcon failed", e)
         null
     }
 }
@@ -374,11 +362,7 @@ suspend fun createPostMarkerIcon(context: Context, url: String?): BitmapDescript
     if (url.isNullOrEmpty()) return null
     return try {
         val loader = context.imageLoader
-        val request = ImageRequest.Builder(context)
-            .data(url)
-            .allowHardware(false)
-            .build()
-
+        val request = ImageRequest.Builder(context).data(url).allowHardware(false).build()
         val result = (loader.execute(request) as? SuccessResult)?.drawable ?: return null
 
         val width = if (result.intrinsicWidth > 0) result.intrinsicWidth else 100
@@ -409,10 +393,12 @@ suspend fun createPostMarkerIcon(context: Context, url: String?): BitmapDescript
 
         BitmapDescriptorFactory.fromBitmap(output)
     } catch (e: Exception) {
-        e.printStackTrace()
+        Log.e("MapScreen", "createPostMarkerIcon failed", e)
         null
     }
 }
+
+// ====== מודלים + מרחק ======
 
 data class MapUserMarker(
     val userId: String,
@@ -427,6 +413,7 @@ data class MapPostMarker(
     val petName: String,
     val latLng: LatLng,
     val text: String,
+    val imageUrl: String,                        // ← נוסף
     val bitmapDescriptor: BitmapDescriptor? = null
 )
 

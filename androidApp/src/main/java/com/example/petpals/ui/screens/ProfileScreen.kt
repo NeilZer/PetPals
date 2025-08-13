@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.petpals.ui.Screen
+import com.example.petpals.util.anyToEpochMillis
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -79,7 +80,7 @@ fun ProfileScreen(
                                 petName = profile?.petName ?: "",
                                 petImage = profile?.petImage ?: "",
                                 likes = doc.getLong("likes")?.toInt() ?: 0,
-                                timestamp = doc.getTimestamp("timestamp")?.toDate()?.time ?: 0L,
+                                timestamp = anyToEpochMillis(doc.get("timestamp")),
                                 likedBy = doc.get("likedBy") as? List<String> ?: emptyList(),
                                 location = doc.getString("locationString") ?: "",
                                 locationLatLng = locationLatLng

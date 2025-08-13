@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.petpals.ui.Screen
+import com.example.petpals.util.anyToEpochMillis
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -101,7 +102,7 @@ fun FeedScreen(navController: NavHostController) {
                             petName = "",
                             petImage = "",
                             likes = doc.getLong("likes")?.toInt() ?: 0,
-                            timestamp = doc.getTimestamp("timestamp")?.toDate()?.time ?: 0L,
+                            timestamp = anyToEpochMillis(doc.get("timestamp")),
                             likedBy = doc.get("likedBy") as? List<String> ?: emptyList(),
                             location = doc.getString("locationString") ?: "",
                             locationLatLng = locationLatLng
@@ -160,7 +161,7 @@ fun FeedScreen(navController: NavHostController) {
                         Spacer(Modifier.height(8.dp))
                         Text("עדיין אין פוסטים בפיד")
                         Spacer(Modifier.height(16.dp))
-                        Text("התחילו לשתף את הרגעים המיוחדים עם חיות המחמד שלכם!")
+                        Text("שתפו את הרגעים המיוחדים עם חיות המחמד שלכם!")
                     }
                 }
             }
@@ -253,7 +254,7 @@ fun FeedPostCard(
                             commentId = doc.id,
                             userId = doc.getString("userId") ?: "",
                             text = doc.getString("text") ?: "",
-                            timestamp = doc.getTimestamp("timestamp")?.toDate()?.time ?: 0L,
+                            timestamp = anyToEpochMillis(doc.get("timestamp")),
                             userName = doc.getString("userName") ?: ""
                         )
                     }

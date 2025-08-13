@@ -8,23 +8,26 @@
         android:minSdkVersion="24"
         android:targetSdkVersion="35" />
 
-    <!-- הרשאות אינטרנט -->
+    <!-- מצלמה לא חובה להתקנה (האפליקציה תעבוד גם בלי מצלמה פיזית) -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <!-- רשת -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!-- הרשאות מיקום -->
+    <!-- מיקום -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <!-- הרשאות אחסון -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- קריאת תמונות (מותנה בגרסת מערכת) -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 
-    <!-- הרשאות מצלמה -->
+    <!-- מצלמה -->
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature
@@ -57,12 +60,23 @@
         android:testOnly="true"
         android:theme="@style/Theme.PetPals" >
 
-        <!-- מפתח ה־API של Google Maps -->
+        <!-- מפתח Google Maps -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDsN2TMwGxWTLqTgNeF9Q87vA8lZ51GCZQ" />
 
-        <!-- מסך Splash כפעילות פתיחה -->
+        <!-- FileProvider נדרש לצילום תמונה לקובץ פרטי -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.petpals.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- פעילות פתיחה -->
         <activity
             android:name="com.example.petpals.MainActivity"
             android:exported="true"

@@ -1,90 +1,94 @@
 [
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/mipmap-mdpi_ic_launcher.webp.flat",
-        "source": "com.example.petpals.androidApp-main-75:/mipmap-mdpi/ic_launcher.webp"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\mipmap-xxhdpi\\ic_launcher_round.webp"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/drawable_activity_splash.xml.flat",
-        "source": "com.example.petpals.androidApp-main-75:/drawable/activity_splash.xml"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\drawable_ic_stats.xml.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\drawable\\ic_stats.xml"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/drawable_ic_map.xml.flat",
-        "source": "com.example.petpals.androidApp-main-75:/drawable/ic_map.xml"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\mipmap-xhdpi\\ic_launcher_round.webp"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
-        "source": "com.example.petpals.androidApp-main-75:/mipmap-xxxhdpi/ic_launcher_round.webp"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\mipmap-anydpi-v26\\ic_launcher.xml"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/mipmap-xxhdpi_ic_launcher.webp.flat",
-        "source": "com.example.petpals.androidApp-main-75:/mipmap-xxhdpi/ic_launcher.webp"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\drawable_ic_map.xml.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\drawable\\ic_map.xml"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
-        "source": "com.example.petpals.androidApp-main-75:/mipmap-xxhdpi/ic_launcher_round.webp"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\mipmap-hdpi\\ic_launcher.webp"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/drawable_ic_stats.xml.flat",
-        "source": "com.example.petpals.androidApp-main-75:/drawable/ic_stats.xml"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\drawable_ic_profile.xml.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\drawable\\ic_profile.xml"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/drawable_splash_screen.xml.flat",
-        "source": "com.example.petpals.androidApp-main-75:/drawable/splash_screen.xml"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\mipmap-xhdpi\\ic_launcher.webp"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/drawable_logo_petpals.jpeg.flat",
-        "source": "com.example.petpals.androidApp-main-75:/drawable/logo_petpals.jpeg"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\mipmap-xxxhdpi\\ic_launcher_round.webp"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/drawable_ic_feed.xml.flat",
-        "source": "com.example.petpals.androidApp-main-75:/drawable/ic_feed.xml"
+        "merged": "com.example.petpals.androidApp-debug-73:/xml_file_paths.xml.flat",
+        "source": "com.example.petpals.androidApp-main-75:/xml/file_paths.xml"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/drawable_ic_logo.png.flat",
-        "source": "com.example.petpals.androidApp-main-75:/drawable/ic_logo.png"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\mipmap-mdpi\\ic_launcher.webp"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/mipmap-xxxhdpi_ic_launcher.webp.flat",
-        "source": "com.example.petpals.androidApp-main-75:/mipmap-xxxhdpi/ic_launcher.webp"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\drawable_activity_splash.xml.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\drawable\\activity_splash.xml"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/mipmap-xhdpi_ic_launcher_round.webp.flat",
-        "source": "com.example.petpals.androidApp-main-75:/mipmap-xhdpi/ic_launcher_round.webp"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\drawable_logo_petpals.jpeg.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\drawable\\logo_petpals.jpeg"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/mipmap-hdpi_ic_launcher.webp.flat",
-        "source": "com.example.petpals.androidApp-main-75:/mipmap-hdpi/ic_launcher.webp"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\mipmap-hdpi\\ic_launcher_round.webp"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/drawable_ic_profile.xml.flat",
-        "source": "com.example.petpals.androidApp-main-75:/drawable/ic_profile.xml"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\drawable_ic_launcher_foreground.xml.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\drawable\\ic_launcher_foreground.xml"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "com.example.petpals.androidApp-main-75:/mipmap-anydpi-v26/ic_launcher_round.xml"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\drawable_splash_screen.xml.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\drawable\\splash_screen.xml"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/drawable_ic_launcher_background.xml.flat",
-        "source": "com.example.petpals.androidApp-main-75:/drawable/ic_launcher_background.xml"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/mipmap-xhdpi_ic_launcher.webp.flat",
-        "source": "com.example.petpals.androidApp-main-75:/mipmap-xhdpi/ic_launcher.webp"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\drawable_ic_launcher_background.xml.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\drawable\\ic_launcher_background.xml"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "com.example.petpals.androidApp-main-75:/drawable/ic_launcher_foreground.xml"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\drawable_ic_feed.xml.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\drawable\\ic_feed.xml"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/mipmap-hdpi_ic_launcher_round.webp.flat",
-        "source": "com.example.petpals.androidApp-main-75:/mipmap-hdpi/ic_launcher_round.webp"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\mipmap-mdpi\\ic_launcher_round.webp"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/mipmap-mdpi_ic_launcher_round.webp.flat",
-        "source": "com.example.petpals.androidApp-main-75:/mipmap-mdpi/ic_launcher_round.webp"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\mipmap-xxhdpi\\ic_launcher.webp"
     },
     {
-        "merged": "com.example.petpals.androidApp-debug-73:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "com.example.petpals.androidApp-main-75:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\mipmap-xxxhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-debug-73:\\drawable_ic_logo.png.flat",
+        "source": "C:\\Users\\reute\\.gradle\\daemon\\8.10\\com.example.petpals.androidApp-main-75:\\drawable\\ic_logo.png"
     }
 ]
