@@ -1,5 +1,6 @@
 package com.example.petpals.ui.screens
-
+import com.petpals.shared.src.util.formatTimestamp
+import com.petpals.shared.src.model.Comment
 import android.util.Log
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -29,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.petpals.ui.Screen
-import com.example.petpals.util.anyToEpochMillis
+import com.petpals.shared.src.util.anyToEpochMillis
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -53,14 +54,6 @@ data class FeedPost(
     val likedBy: List<String> = emptyList(),
     val location: String = "",
     val locationLatLng: LatLng? = null
-)
-
-data class Comment(
-    val commentId: String = "",
-    val userId: String = "",
-    val text: String = "",
-    val timestamp: Long = 0L,
-    val userName: String = ""
 )
 
 @Composable
@@ -478,16 +471,5 @@ suspend fun deletePost(postId: String, userId: String) {
         db.collection("users").document(userId).collection("myPosts").document(postId).delete().await()
     } catch (e: Exception) {
         Log.e("DELETE_POST", "Error deleting post: ${e.message}", e)
-    }
-}
-
-fun formatTimestamp(timestamp: Long): String {
-    val now = System.currentTimeMillis()
-    val diff = now - timestamp
-    return when {
-        diff < 60_000 -> "עכשיו"
-        diff < 3_600_000 -> "${diff / 60_000} ד'"
-        diff < 86_400_000 -> "${diff / 3_600_000} ש'"
-        else -> java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date(timestamp))
     }
 }

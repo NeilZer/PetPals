@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.petpals.androidApp-mergeDebugResources-71:/values-af/values-af.xml",
+            "outputFile": "com.example.petpals.androidApp-mergeDebugResources-72:/values-af/values-af.xml",
             "map": [
                 {
                     "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\193099c4566c0bfb4416710c38b3855a\\transformed\\jetified-credentials-1.2.0-rc01\\res\\values-af\\values-af.xml",
@@ -38,23 +38,6 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\5647f67078a6daf4521e042dc8fd2564\\transformed\\jetified-play-services-basement-18.3.0\\res\\values-af\\values.xml",
-                    "from": {
-                        "startLines": "4",
-                        "startColumns": "0",
-                        "startOffsets": "195",
-                        "endColumns": "138",
-                        "endOffsets": "333"
-                    },
-                    "to": {
-                        "startLines": "60",
-                        "startColumns": "4",
-                        "startOffsets": "5856",
-                        "endColumns": "142",
-                        "endOffsets": "5994"
-                    }
-                },
-                {
                     "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\50357e5bf67ad422ac41b8240b98226c\\transformed\\jetified-material3-release\\res\\values-af\\values-af.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57",
@@ -69,6 +52,23 @@
                         "startOffsets": "8210,8327,8445,8560,8676,8776,8880,9001,9142,9270,9412,9497,9596,9686,9782,9897,10018,10122,10250,10375,10507,10673,10798,10920,11043,11172,11263,11362,11478,11604,11704,11814,11917,12054,12194,12300,12398,12475,12569,12663,12748,12836,12941,13022,13105,13204,13302,13397,13495,13583,13686,13786,13889,14005,14086,14186",
                         "endColumns": "116,117,114,115,99,103,120,140,127,141,84,98,89,95,114,120,103,127,124,131,165,124,121,122,128,90,98,115,125,99,109,102,136,139,105,97,76,93,93,84,87,104,80,82,98,97,94,97,87,102,99,102,115,80,99,95",
                         "endOffsets": "8322,8440,8555,8671,8771,8875,8996,9137,9265,9407,9492,9591,9681,9777,9892,10013,10117,10245,10370,10502,10668,10793,10915,11038,11167,11258,11357,11473,11599,11699,11809,11912,12049,12189,12295,12393,12470,12564,12658,12743,12831,12936,13017,13100,13199,13297,13392,13490,13578,13681,13781,13884,14000,14081,14181,14277"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\78cb02c64c81f22d48b3009f290e342e\\transformed\\jetified-play-services-basement-18.4.0\\res\\values-af\\values.xml",
+                    "from": {
+                        "startLines": "4",
+                        "startColumns": "0",
+                        "startOffsets": "195",
+                        "endColumns": "138",
+                        "endOffsets": "333"
+                    },
+                    "to": {
+                        "startLines": "60",
+                        "startColumns": "4",
+                        "startOffsets": "5856",
+                        "endColumns": "142",
+                        "endOffsets": "5994"
                     }
                 },
                 {

@@ -64,7 +64,7 @@ fun NavGraph(
             MapScreen(navController = navController, selectedPostLocation = selectedLocation)
         }
 
-        // הפרופיל שלי (ללא פרמטרים)
+        // הפרופיל שלי
         composable(Screen.Profile.route) {
             val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
             if (currentUserId != null) {
@@ -74,7 +74,7 @@ fun NavGraph(
             }
         }
 
-        // פרופיל של משתמש אחר: profile/{userId}
+        // פרופיל של משתמש אחר
         composable(
             route = "profile/{userId}",
             arguments = listOf(navArgument("userId") { type = NavType.StringType })

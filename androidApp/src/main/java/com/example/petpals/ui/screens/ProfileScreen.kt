@@ -21,19 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.petpals.ui.Screen
-import com.example.petpals.util.anyToEpochMillis
+import com.petpals.shared.src.util.anyToEpochMillis
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
+import com.petpals.shared.src.model.UserProfile
 
-data class UserProfile(
-    val petName: String = "",
-    val petAge: Int = 0,
-    val petBreed: String = "",
-    val petImage: String = ""
-)
+
 @Composable
 fun ProfileScreen(
     navController: NavHostController,
