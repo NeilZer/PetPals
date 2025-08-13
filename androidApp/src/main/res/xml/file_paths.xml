@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- אנחנו שומרים תמונות ב-cache, לכן זה מספיק -->
+    <cache-path name="cache" path="." />
+    <external-cache-path name="external_cache" path="." />
+    <!-- אופציונלי אם תרצה/י לשמור בתיקיית Pictures של האפליקציה -->
+    <files-path name="files" path="Pictures" />
+    <external-files-path name="external_files" path="Pictures" />
+</paths>

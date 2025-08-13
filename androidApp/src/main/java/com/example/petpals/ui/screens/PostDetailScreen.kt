@@ -19,6 +19,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.petpals.util.anyToEpochMillis
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -57,7 +58,7 @@ fun PostDetailScreen(
                     text = postDoc.getString("text") ?: "",
                     imageUrl = postDoc.getString("imageUrl") ?: "",
                     likes = postDoc.getLong("likes")?.toInt() ?: 0,
-                    timestamp = postDoc.getTimestamp("timestamp")?.toDate()?.time ?: 0L,
+                    timestamp = anyToEpochMillis(postDoc.get("timestamp")),
                     likedBy = postDoc.get("likedBy") as? List<String> ?: emptyList(),
                     location = postDoc.getString("locationString") ?: "",
                     locationLatLng = locationLatLng
@@ -94,7 +95,7 @@ fun PostDetailScreen(
                             commentId = doc.id,
                             userId = doc.getString("userId") ?: "",
                             text = doc.getString("text") ?: "",
-                            timestamp = doc.getTimestamp("timestamp")?.toDate()?.time ?: 0L,
+                            timestamp = anyToEpochMillis(doc.get("timestamp")),
                             userName = doc.getString("userName") ?: ""
                         )
                     }
@@ -106,12 +107,18 @@ fun PostDetailScreen(
         topBar = {
             TopAppBar(
                 title = { Text("פוסט") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
+                ),
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "חזור")
                     }
                 }
             )
+
         }
     ) { paddingValues ->
         Box(
