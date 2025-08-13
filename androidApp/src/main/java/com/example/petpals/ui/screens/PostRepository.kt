@@ -28,10 +28,12 @@ class PostRepository(
         val uid = auth.currentUser?.uid ?: throw IllegalStateException("User not signed in")
         val postId = db.collection("posts").document().id
 
-        var imageUrl: String = ""
+        var imageUrl = ""
         if (localImageUri != null) {
             val imageRef = storage.reference.child("postImages/$uid/$postId.jpg")
+            // מעלה
             imageRef.putFile(localImageUri).await()
+            // לוקח קישור הורדה
             imageUrl = imageRef.downloadUrl.await().toString()
         }
 
@@ -46,6 +48,7 @@ class PostRepository(
             likes = emptyList()
         )
 
+        // כתיבה ל-feed הגלובלי
         db.collection("posts").document(postId).set(post).await()
 
         // אופציונלי: עותק בארכיון המשתמש
@@ -56,7 +59,10 @@ class PostRepository(
     }
 
     /** מאזין לפיד הגלובלי (Firestore) */
-    fun listenFeed(onChange: (List<Post>) -> Unit, onError: (Throwable) -> Unit): ListenerRegistration {
+    fun listenFeed(
+        onChange: (List<Post>) -> Unit,
+        onError: (Throwable) -> Unit
+    ): ListenerRegistration {
         return db.collection("posts")
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snap, e ->

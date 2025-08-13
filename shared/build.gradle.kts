@@ -1,9 +1,7 @@
-import org.gradle.api.JavaVersion
-
 plugins {
     id("com.android.library")
     kotlin("multiplatform")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.24" // התאימי לגרסת הקוטלין שלך
+    kotlin("plugin.serialization") version "1.9.24" // ← החזרת הגרסה כאן
 }
 
 kotlin {
@@ -23,6 +21,12 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+
+                // Ktor (משותף)
+                implementation("io.ktor:ktor-client-core:2.3.12")
+                implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+                implementation("io.ktor:ktor-client-logging:2.3.12")
             }
         }
         val commonTest by getting {
@@ -33,20 +37,34 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
+                implementation("io.ktor:ktor-client-okhttp:2.3.12")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-                // Firebase לאנדרואיד – אם את משתמשת ב־expect/actual ושמה את המימוש באנדרואיד
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+                implementation("com.google.android.gms:play-services-location:21.2.0")
+                // אם מימושי actual באנדרואיד משתמשים בפיירבייס:
                 implementation("com.google.firebase:firebase-auth-ktx:23.1.0")
                 implementation("com.google.firebase:firebase-firestore-ktx:25.1.0")
                 implementation("com.google.firebase:firebase-storage-ktx:21.0.0")
             }
         }
         val androidUnitTest by getting
-        // val iosMain by getting { }  // יופעל רק אם isMac=true
+
+        if (isMac) {
+            val iosMain by getting {
+                dependencies {
+                    implementation("io.ktor:ktor-client-darwin:2.3.12")
+                }
+            }
+            val iosTest by getting
+        }
     }
 }
 
 android {
-    namespace = "com.petpals.shared" // או com.example.shared – העיקר להיות עקבית עם ה-packages
+    namespace = "com.petpals.shared"
     compileSdk = 34
     defaultConfig { minSdk = 24 }
+}
+dependencies {
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }
