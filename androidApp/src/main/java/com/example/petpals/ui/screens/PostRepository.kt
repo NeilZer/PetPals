@@ -1,4 +1,4 @@
-package com.example.petpals.data
+package com.example.petpals.ui.screens
 
 import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
@@ -6,18 +6,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
+import com.petpals.shared.src.model.Post
 import kotlinx.coroutines.tasks.await
-
-data class Post(
-    val postId: String = "",
-    val userId: String = "",
-    val description: String = "",
-    val imageUrl: String? = null,
-    val timestamp: Long = 0L,
-    val lat: Double? = null,
-    val lng: Double? = null,
-    val likes: List<String> = emptyList()
-)
 
 class PostRepository(
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance(),
@@ -26,8 +16,8 @@ class PostRepository(
 ) {
 
     /**
-     * יוצר פוסט חדש וכותב *תמיד* ל- /posts/<postId>.
-     * אם יש תמונה — מעלה לנתיב שמותר ע"פ החוקים: postImages/<uid>/<postId>.jpg
+     * יצירת פוסט חדש: כותב תמיד ל- /posts/<postId>
+     * אם יש תמונה — מעלה לנתיב המורשה: postImages/<uid>/<postId>.jpg
      */
     suspend fun createPost(
         description: String,
@@ -38,12 +28,11 @@ class PostRepository(
         val uid = auth.currentUser?.uid ?: throw IllegalStateException("User not signed in")
         val postId = db.collection("posts").document().id
 
-        var imageUrl: String? = null
+        var imageUrl: String = ""
         if (localImageUri != null) {
-            // <-- תואם לחוקי ה-Storage שלך
             val imageRef = storage.reference.child("postImages/$uid/$postId.jpg")
-            imageUrl = imageRef.putFile(localImageUri).await()
-                .storage.downloadUrl.await().toString()
+            imageRef.putFile(localImageUri).await()
+            imageUrl = imageRef.downloadUrl.await().toString()
         }
 
         val post = Post(
@@ -57,17 +46,16 @@ class PostRepository(
             likes = emptyList()
         )
 
-        // לכתוב ל-top-level feed
         db.collection("posts").document(postId).set(post).await()
 
-        // אם חשוב לך גם לשמור לארכיון של המשתמש, תשמור בעותק (לא חובה):
+        // אופציונלי: עותק בארכיון המשתמש
         // db.collection("users").document(uid)
         //   .collection("posts").document(postId).set(post).await()
 
         return postId
     }
 
-    /** מאזין לפיד הגלובלי */
+    /** מאזין לפיד הגלובלי (Firestore) */
     fun listenFeed(onChange: (List<Post>) -> Unit, onError: (Throwable) -> Unit): ListenerRegistration {
         return db.collection("posts")
             .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -80,7 +68,7 @@ class PostRepository(
             }
     }
 
-    /** מביא פוסט בודד לפי מזהה */
+    /** פוסט בודד לפי מזהה */
     suspend fun getPost(postId: String): Post? {
         val doc = db.collection("posts").document(postId).get().await()
         return doc.toObject(Post::class.java)

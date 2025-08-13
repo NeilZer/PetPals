@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.petpals.androidApp-mergeDebugResources-71:/values-zh-rHK/values-zh-rHK.xml",
+            "outputFile": "com.example.petpals.androidApp-mergeDebugResources-72:/values-zh-rHK/values-zh-rHK.xml",
             "map": [
                 {
                     "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\334f61a92b8b8335c668f790738c102a\\transformed\\appcompat-1.6.1\\res\\values-zh-rHK\\values-zh-rHK.xml",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\5647f67078a6daf4521e042dc8fd2564\\transformed\\jetified-play-services-basement-18.3.0\\res\\values-zh-rHK\\values.xml",
+                    "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\78cb02c64c81f22d48b3009f290e342e\\transformed\\jetified-play-services-basement-18.4.0\\res\\values-zh-rHK\\values.xml",
                     "from": {
                         "startLines": "4",
                         "startColumns": "0",

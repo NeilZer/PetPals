@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.petpals.androidApp-mergeDebugResources-71:/values-si/values-si.xml",
+            "outputFile": "com.example.petpals.androidApp-mergeDebugResources-72:/values-si/values-si.xml",
             "map": [
                 {
                     "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\334f61a92b8b8335c668f790738c102a\\transformed\\appcompat-1.6.1\\res\\values-si\\values-si.xml",
@@ -38,23 +38,6 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\5647f67078a6daf4521e042dc8fd2564\\transformed\\jetified-play-services-basement-18.3.0\\res\\values-si\\values.xml",
-                    "from": {
-                        "startLines": "4",
-                        "startColumns": "0",
-                        "startOffsets": "195",
-                        "endColumns": "134",
-                        "endOffsets": "329"
-                    },
-                    "to": {
-                        "startLines": "60",
-                        "startColumns": "4",
-                        "startOffsets": "5849",
-                        "endColumns": "138",
-                        "endOffsets": "5983"
-                    }
-                },
-                {
                     "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\493748f29c369f66eead50a7ea1b4ad1\\transformed\\browser-1.4.0\\res\\values-si\\values-si.xml",
                     "from": {
                         "startLines": "2,3,4,5",
@@ -69,6 +52,23 @@
                         "startOffsets": "7060,7601,7708,7824",
                         "endColumns": "107,106,115,104",
                         "endOffsets": "7163,7703,7819,7924"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\78cb02c64c81f22d48b3009f290e342e\\transformed\\jetified-play-services-basement-18.4.0\\res\\values-si\\values.xml",
+                    "from": {
+                        "startLines": "4",
+                        "startColumns": "0",
+                        "startOffsets": "195",
+                        "endColumns": "134",
+                        "endOffsets": "329"
+                    },
+                    "to": {
+                        "startLines": "60",
+                        "startColumns": "4",
+                        "startOffsets": "5849",
+                        "endColumns": "138",
+                        "endOffsets": "5983"
                     }
                 },
                 {

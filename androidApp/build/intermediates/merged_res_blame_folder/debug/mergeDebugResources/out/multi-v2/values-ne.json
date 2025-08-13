@@ -1,25 +1,8 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.petpals.androidApp-mergeDebugResources-71:/values-ne/values-ne.xml",
+            "outputFile": "com.example.petpals.androidApp-mergeDebugResources-72:/values-ne/values-ne.xml",
             "map": [
-                {
-                    "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\5647f67078a6daf4521e042dc8fd2564\\transformed\\jetified-play-services-basement-18.3.0\\res\\values-ne\\values.xml",
-                    "from": {
-                        "startLines": "4",
-                        "startColumns": "0",
-                        "startOffsets": "195",
-                        "endColumns": "159",
-                        "endOffsets": "354"
-                    },
-                    "to": {
-                        "startLines": "60",
-                        "startColumns": "4",
-                        "startOffsets": "5988",
-                        "endColumns": "163",
-                        "endOffsets": "6147"
-                    }
-                },
                 {
                     "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\193099c4566c0bfb4416710c38b3855a\\transformed\\jetified-credentials-1.2.0-rc01\\res\\values-ne\\values-ne.xml",
                     "from": {
@@ -105,6 +88,23 @@
                         "startOffsets": "312,421,532,640,731,838,958,1042,1121,1212,1305,1400,1494,1594,1687,1782,1876,1967,2058,2144,2257,2358,2454,2567,2677,2794,2961,19724",
                         "endColumns": "108,110,107,90,106,119,83,78,90,92,94,93,99,92,94,93,90,90,85,112,100,95,112,109,116,166,110,79",
                         "endOffsets": "416,527,635,726,833,953,1037,1116,1207,1300,1395,1489,1589,1682,1777,1871,1962,2053,2139,2252,2353,2449,2562,2672,2789,2956,3067,19799"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\reute\\.gradle\\caches\\8.10\\transforms\\78cb02c64c81f22d48b3009f290e342e\\transformed\\jetified-play-services-basement-18.4.0\\res\\values-ne\\values.xml",
+                    "from": {
+                        "startLines": "4",
+                        "startColumns": "0",
+                        "startOffsets": "195",
+                        "endColumns": "159",
+                        "endOffsets": "354"
+                    },
+                    "to": {
+                        "startLines": "60",
+                        "startColumns": "4",
+                        "startOffsets": "5988",
+                        "endColumns": "163",
+                        "endOffsets": "6147"
                     }
                 },
                 {
