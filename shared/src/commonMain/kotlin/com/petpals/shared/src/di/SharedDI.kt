@@ -1,11 +1,14 @@
+
 package com.petpals.shared.src.di
 
-import com.petpals.shared.src.data.PostsRepository
-import com.petpals.shared.src.data.providePostsRepository
-import com.petpals.shared.src.device.LocationProvider
-import com.petpals.shared.src.device.provideLocationProvider
+import com.petpals.shared.src.data.api.ApiService
+import com.petpals.shared.src.data.repository.PostRepositoryImpl
+import com.petpals.shared.src.data.repository.UserRepositoryImpl
+import com.petpals.shared.src.domain.repository.IPostRepository
+import com.petpals.shared.src.domain.repository.IUserRepository
 
 object SharedDI {
-    val posts: PostsRepository by lazy { providePostsRepository() }
-    val location: LocationProvider by lazy { provideLocationProvider() }
+    private val api by lazy { ApiService() }
+    val userRepository: IUserRepository by lazy { UserRepositoryImpl(api) }
+    val postRepository: IPostRepository by lazy { PostRepositoryImpl(api) }
 }

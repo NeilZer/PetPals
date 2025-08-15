@@ -15,7 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import com.petpals.shared.src.model.MonthlyStats
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -26,19 +26,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.cos
-import kotlin.math.sin
-
-data class MonthlyStats(
-    val month: String,
-    val postsCount: Int,
-    val likesReceived: Int,
-    val totalDistance: Double,
-    val activeDays: Int
-)
 
 data class StatCard(
     val title: String,
@@ -433,11 +424,40 @@ fun AchievementsCard(totalPosts: Int, totalLikes: Int, totalDistance: Double) {
     }
 }
 
+// פונקציה לטיפול בסוגי timestamp שונים
+fun extractTimestamp(timestampField: Any?): Long {
+    return when (timestampField) {
+        is Long -> timestampField
+        is Int -> timestampField.toLong()
+        is Double -> timestampField.toLong()
+        is Timestamp -> timestampField.toDate().time
+        is String -> {
+            try {
+                timestampField.toLong()
+            } catch (e: NumberFormatException) {
+                Log.w("STATISTICS", "Cannot parse timestamp string: $timestampField")
+                System.currentTimeMillis()
+            }
+        }
+        is Map<*, *> -> {
+            // טיפול ב-Firebase Timestamp כ-map עם seconds ו-nanoseconds
+            val seconds = (timestampField["seconds"] as? Number)?.toLong() ?: 0L
+            val nanoseconds = (timestampField["nanoseconds"] as? Number)?.toLong() ?: 0L
+            seconds * 1000L + nanoseconds / 1_000_000L
+        }
+        else -> {
+            Log.w("STATISTICS", "Unknown timestamp type: ${timestampField?.javaClass}")
+            System.currentTimeMillis()
+        }
+    }
+}
+
 suspend fun loadStatistics(
     userId: String,
     onComplete: (List<MonthlyStats>, Int, Int, Double, Int) -> Unit
 ) {
     try {
+        Log.d("STATISTICS", "Starting to load statistics for user: $userId")
         val db = FirebaseFirestore.getInstance()
         val calendar = Calendar.getInstance()
         val currentMonth = calendar.get(Calendar.MONTH)
@@ -449,12 +469,25 @@ suspend fun loadStatistics(
             .get()
             .await()
 
-        val posts = postsSnapshot.documents.mapNotNull { doc ->
-            val timestamp = doc.getTimestamp("timestamp")?.toDate()?.time ?: 0L
-            val likes = doc.getLong("likes")?.toInt() ?: 0
-            val geoPoint = doc.getGeoPoint("location")
+        Log.d("STATISTICS", "Found ${postsSnapshot.documents.size} posts")
 
-            Triple(timestamp, likes, geoPoint)
+        val posts = postsSnapshot.documents.mapNotNull { doc ->
+            try {
+                // שימוש בפונקציה החדשה לטיפול ב-timestamp
+                val timestampField = doc.get("timestamp")
+                val timestamp = extractTimestamp(timestampField)
+
+                val likedBy = doc.get("likedBy") as? List<*> ?: emptyList<Any>()
+                val likes = likedBy.size
+                val hasLocation = doc.getGeoPoint("location") != null ||
+                        (doc.getDouble("lat") != null && doc.getDouble("lng") != null)
+
+                Log.d("STATISTICS", "Post timestamp: $timestamp, likes: $likes, hasLocation: $hasLocation")
+                Triple(timestamp, likes, hasLocation)
+            } catch (e: Exception) {
+                Log.e("STATISTICS", "Error processing post document: ${doc.id}", e)
+                null
+            }
         }
 
         // חישוב סטטיסטיקות כלליות
@@ -462,7 +495,7 @@ suspend fun loadStatistics(
         val totalLikes = posts.sumOf { it.second }
 
         // חישוב מרחק כולל (הערכה בסיסית)
-        val totalDistance = posts.count { it.third != null } * 2.5 // הערכה של 2.5 ק"מ לטיול
+        val totalDistance = posts.count { it.third } * 2.5 // הערכה של 2.5 ק"מ לטיול
 
         // חישוב ימים פעילים החודש
         val activeDaysThisMonth = posts.count { postData ->
@@ -492,7 +525,7 @@ suspend fun loadStatistics(
                 month = monthStr,
                 postsCount = monthPosts.size,
                 likesReceived = monthPosts.sumOf { it.second },
-                totalDistance = monthPosts.count { it.third != null } * 2.5,
+                totalDistance = monthPosts.count { it.third } * 2.5,
                 activeDays = monthPosts.map { postData ->
                     val cal = Calendar.getInstance().apply { timeInMillis = postData.first }
                     cal.get(Calendar.DAY_OF_MONTH)
@@ -502,6 +535,7 @@ suspend fun loadStatistics(
             monthlyStats.add(monthStats)
         }
 
+        Log.d("STATISTICS", "Statistics calculated - Posts: $totalPosts, Likes: $totalLikes, Distance: $totalDistance")
         onComplete(monthlyStats, totalPosts, totalLikes, totalDistance, activeDaysThisMonth)
 
     } catch (e: Exception) {
