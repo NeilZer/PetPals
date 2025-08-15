@@ -1,19 +1,23 @@
 
-package com.petpals.shared.data.repository
+package com.petpals.shared.src.data.repository
 
-import com.petpals.shared.data.api.ApiService
-import com.petpals.shared.domain.repository.IPostRepository
-import com.petpals.shared.model.Post
-import com.petpals.shared.model.Comment
-import com.petpals.shared.model.MapPostMarker
-import com.petpals.shared.util.LatLng
-import com.petpals.shared.core.Result
+import com.petpals.shared.src.core.AppResult
+import com.petpals.shared.src.data.api.ApiService
+import com.petpals.shared.src.domain.repository.IPostRepository
+import com.petpals.shared.src.model.Post
+import com.petpals.shared.src.core.Result
+
+import com.petpals.shared.src.model.Comment
+import com.petpals.shared.src.model.MapPostMarker
+import com.petpals.shared.src.util.LatLng
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
 actual class PostRepositoryImpl actual constructor(
     private val apiService: ApiService
 ) : IPostRepository {
+    override suspend fun getFeed(): AppResult<List<Post>> {
+        TODO("Not yet implemented")
+    }
 
     actual override suspend fun createPost(post: Post): Result<Post> {
         return try {
@@ -24,7 +28,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun createPostWithImage(
+    actual suspend fun createPostWithImage(
         description: String,
         imageUrl: String?,
         lat: Double?,
@@ -36,7 +40,7 @@ actual class PostRepositoryImpl actual constructor(
                 postId = postId,
                 description = description.trim(),
                 imageUrl = imageUrl.orEmpty(),
-                timestamp = com.petpals.shared.util.Time.getCurrentTimestamp(),
+                timestamp = com.petpals.shared.src.util.Time.getCurrentTimestamp(),
                 lat = lat,
                 lng = lng
             )
@@ -47,7 +51,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun getPosts(limit: Int, offset: Int): Result<List<Post>> {
+    actual suspend fun getPosts(limit: Int, offset: Int): Result<List<Post>> {
         return try {
             val posts = apiService.getPosts()
             Result.Success(posts)
@@ -56,7 +60,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun getPostsByUser(userId: String): Result<List<Post>> {
+    actual suspend fun getPostsByUser(userId: String): Result<List<Post>> {
         return try {
             val posts = apiService.getPosts().filter { it.userId == userId }
             Result.Success(posts)
@@ -65,7 +69,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun getPostsByLocation(location: LatLng, radius: Double): Result<List<Post>> {
+    actual suspend fun getPostsByLocation(location: LatLng, radius: Double): Result<List<Post>> {
         return try {
             val posts = apiService.getPosts().filter { post ->
                 post.locationLatLng?.let { postLocation ->
@@ -78,7 +82,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun getPostById(postId: String): Result<Post> {
+    actual suspend fun getPostById(postId: String): Result<Post> {
         return try {
             val post = apiService.getPostById(postId)
             Result.Success(post)
@@ -96,7 +100,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun unlikePost(postId: String, userId: String): Result<Unit> {
+    actual suspend fun unlikePost(postId: String, userId: String): Result<Unit> {
         return try {
             apiService.unlikePost(postId, userId)
             Result.Success(Unit)
@@ -105,7 +109,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun toggleLike(postId: String, userId: String): Result<Unit> {
+    actual suspend fun toggleLike(postId: String, userId: String): Result<Unit> {
         return try {
             apiService.toggleLike(postId, userId)
             Result.Success(Unit)
@@ -114,7 +118,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun deletePost(postId: String): Result<Unit> {
+    actual suspend fun deletePost(postId: String): Result<Unit> {
         return try {
             apiService.deletePost(postId)
             Result.Success(Unit)
@@ -123,7 +127,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun addComment(comment: Comment): Result<Comment> {
+    actual suspend fun addComment(comment: Comment): Result<Comment> {
         return try {
             val addedComment = apiService.addComment(comment)
             Result.Success(addedComment)
@@ -132,7 +136,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun addCommentToPost(postId: String, userId: String, text: String): Result<Unit> {
+    actual suspend fun addCommentToPost(postId: String, userId: String, text: String): Result<Unit> {
         return try {
             apiService.addCommentToPost(postId, userId, text)
             Result.Success(Unit)
@@ -141,7 +145,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun getComments(postId: String): Result<List<Comment>> {
+    actual suspend fun getComments(postId: String): Result<List<Comment>> {
         return try {
             val comments = apiService.getComments(postId)
             Result.Success(comments)
@@ -150,7 +154,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun deleteComment(postId: String, commentId: String): Result<Unit> {
+    actual suspend fun deleteComment(postId: String, commentId: String): Result<Unit> {
         return try {
             apiService.deleteComment(postId, commentId)
             Result.Success(Unit)
@@ -159,7 +163,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun getNearbyPosts(currentLocation: LatLng, radiusKm: Double): Result<List<MapPostMarker>> {
+    actual suspend fun getNearbyPosts(currentLocation: LatLng, radiusKm: Double): Result<List<MapPostMarker>> {
         return try {
             val posts = apiService.getNearbyPosts(currentLocation, radiusKm)
             Result.Success(posts)
@@ -168,7 +172,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override fun observePosts(): Flow<Result<List<Post>>> {
+    actual fun observePosts(): Flow<Result<List<Post>>> {
         return kotlinx.coroutines.flow.flow {
             try {
                 val posts = apiService.getPosts()
@@ -179,7 +183,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override fun observePostsByUser(userId: String): Flow<Result<List<Post>>> {
+    actual fun observePostsByUser(userId: String): Flow<Result<List<Post>>> {
         return kotlinx.coroutines.flow.flow {
             try {
                 val posts = apiService.getPosts().filter { it.userId == userId }
@@ -190,7 +194,7 @@ actual class PostRepositoryImpl actual constructor(
         }
     }
 
-    actual override fun observeComments(postId: String): Flow<Result<List<Comment>>> {
+    actual fun observeComments(postId: String): Flow<Result<List<Comment>>> {
         return kotlinx.coroutines.flow.flow {
             try {
                 val comments = apiService.getComments(postId)

@@ -1,7 +1,6 @@
 
-package com.petpals.shared.util
+package com.petpals.shared.src.util
 
-import platform.Foundation.NSLog
 
 actual object Logger {
 
@@ -30,7 +29,7 @@ actual object Logger {
         NSLog("📝 VERBOSE [$tag]: $message")
     }
 
-    actual fun log(level: LogLevel, tag: String, message: String, throwable: Throwable?) {
+    fun log(level: LogLevel, tag: String, message: String, throwable: Throwable?) {
         when (level) {
             LogLevel.DEBUG -> debug(tag, message)
             LogLevel.INFO -> info(tag, message)

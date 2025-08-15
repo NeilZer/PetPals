@@ -90,10 +90,6 @@ android {
     }
 }
 
-dependencies {
-    implementation("androidx.compose.ui:ui-android:1.9.0")
-}
-
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions { jvmTarget = "17" }
 }

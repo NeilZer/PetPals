@@ -1,13 +1,10 @@
 
-package com.petpals.shared.util
+package com.petpals.shared.src.util
 
-import platform.UIKit.*
-import platform.UserNotifications.*
-import platform.Foundation.NSError
 
 actual class AppDelegate : NSObject(), UIApplicationDelegateProtocol {
 
-    actual fun applicationDidFinishLaunching(application: UIApplication): Boolean {
+    fun applicationDidFinishLaunching(application: UIApplication): Boolean {
         // Request notification permissions
         val center = UNUserNotificationCenter.currentNotificationCenter()
         center.requestAuthorizationWithOptions(
@@ -24,7 +21,7 @@ actual class AppDelegate : NSObject(), UIApplicationDelegateProtocol {
         return true
     }
 
-    actual fun applicationDidRegisterForRemoteNotifications(
+    fun applicationDidRegisterForRemoteNotifications(
         application: UIApplication,
         deviceToken: NSData
     ) {
@@ -39,7 +36,7 @@ actual class AppDelegate : NSObject(), UIApplicationDelegateProtocol {
         println("Device Token: $token")
     }
 
-    actual fun applicationDidFailToRegisterForRemoteNotifications(
+    fun applicationDidFailToRegisterForRemoteNotifications(
         application: UIApplication,
         error: NSError
     ) {

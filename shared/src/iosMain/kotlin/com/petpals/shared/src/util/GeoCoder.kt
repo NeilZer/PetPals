@@ -1,10 +1,7 @@
 
-package com.petpals.shared.util
+package com.petpals.shared.src.util
 
-import com.petpals.shared.core.Result
 import kotlinx.coroutines.suspendCancellableCoroutine
-import platform.CoreLocation.*
-import platform.Foundation.NSError
 import kotlin.coroutines.resume
 
 actual class GeoCoder {

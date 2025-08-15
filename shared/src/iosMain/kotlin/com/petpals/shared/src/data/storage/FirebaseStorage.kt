@@ -1,11 +1,9 @@
 
-package com.petpals.shared.data.storage
+package com.petpals.shared.src.data.storage
 
-import com.petpals.shared.core.Result
+import com.petpals.shared.src.core.Result
 import kotlinx.coroutines.suspendCancellableCoroutine
-import platform.Foundation.*
-import platform.UIKit.UIImage
-import platform.UIKit.UIImageJPEGRepresentation
+
 import kotlin.coroutines.resume
 
 actual class FirebaseStorage {

@@ -1,4 +1,4 @@
-package com.petpals.shared.platform
+package com.petpals.shared.src.platform
 
 import io.ktor.client.*
 import io.ktor.client.engine.darwin.*
@@ -24,5 +24,9 @@ actual class NetworkClient {
 
     actual suspend fun isNetworkAvailable(): Boolean {
         return true
+    }
+
+    actual fun httpClient(): HttpClient {
+        TODO("Not yet implemented")
     }
 }

@@ -1,5 +1,5 @@
 
-package com.petpals.shared.util
+package com.petpals.shared.src.util
 
 actual object Analytics {
     actual fun logEvent(eventName: String, parameters: Map<String, Any>?) {

@@ -1,12 +1,12 @@
 
-package com.petpals.shared.data.repository
+package com.petpals.shared.src.data.repository
 
-import com.petpals.shared.data.api.ApiService
-import com.petpals.shared.domain.repository.IUserRepository
-import com.petpals.shared.model.UserProfile
-import com.petpals.shared.model.MapUserMarker
-import com.petpals.shared.util.LatLng
-import com.petpals.shared.core.Result
+import com.petpals.shared.src.data.api.ApiService
+import com.petpals.shared.src.domain.repository.IUserRepository
+import com.petpals.shared.src.model.UserProfile
+import com.petpals.shared.src.model.MapUserMarker
+import com.petpals.shared.src.util.LatLng
+import com.petpals.shared.src.core.Result
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -32,7 +32,7 @@ actual class UserRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun loadUserProfile(userId: String): Result<UserProfile> {
+    actual suspend fun loadUserProfile(userId: String): Result<UserProfile> {
         return try {
             val user = apiService.getUser(userId)
             Result.Success(user)
@@ -41,7 +41,7 @@ actual class UserRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun updateUserProfile(user: UserProfile): Result<UserProfile> {
+    actual suspend fun updateUserProfile(user: UserProfile): Result<UserProfile> {
         return try {
             val updatedUser = apiService.updateUser(user)
             Result.Success(updatedUser)
@@ -50,7 +50,7 @@ actual class UserRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun saveUserProfile(
+    actual suspend fun saveUserProfile(
         userId: String,
         name: String,
         age: Int,
@@ -65,7 +65,7 @@ actual class UserRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun updateUserLocation(userId: String, location: LatLng): Result<Unit> {
+    actual suspend fun updateUserLocation(userId: String, location: LatLng): Result<Unit> {
         return try {
             apiService.updateUserLocation(userId, location)
             Result.Success(Unit)
@@ -74,16 +74,16 @@ actual class UserRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun getNearbyUsers(currentLocation: LatLng, radiusKm: Double): Result<List<MapUserMarker>> {
+    actual suspend fun getNearbyUsers(currentLocation: LatLng, radiusKm: Double): Result<List<MapUserMarker>> {
         return try {
-            val users = apiService.getNearbyUsers(currentLocation, radiusKm)
-            Result.Success(users)
+            val nearbyUsers = apiService.getNearbyUsers(currentLocation, radiusKm)
+            Result.Success(nearbyUsers)
         } catch (e: Exception) {
             Result.Error(e)
         }
     }
 
-    actual override suspend fun followUser(userId: String): Result<Unit> {
+    actual suspend fun followUser(userId: String): Result<Unit> {
         return try {
             apiService.followUser(userId)
             Result.Success(Unit)
@@ -92,7 +92,7 @@ actual class UserRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun unfollowUser(userId: String): Result<Unit> {
+    actual suspend fun unfollowUser(userId: String): Result<Unit> {
         return try {
             apiService.unfollowUser(userId)
             Result.Success(Unit)
@@ -101,7 +101,7 @@ actual class UserRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun getFollowers(userId: String): Result<List<UserProfile>> {
+    actual suspend fun getFollowers(userId: String): Result<List<UserProfile>> {
         return try {
             val followers = apiService.getFollowers(userId)
             Result.Success(followers)
@@ -110,7 +110,7 @@ actual class UserRepositoryImpl actual constructor(
         }
     }
 
-    actual override suspend fun getFollowing(userId: String): Result<List<UserProfile>> {
+    actual suspend fun getFollowing(userId: String): Result<List<UserProfile>> {
         return try {
             val following = apiService.getFollowing(userId)
             Result.Success(following)
@@ -119,12 +119,14 @@ actual class UserRepositoryImpl actual constructor(
         }
     }
 
-    actual override fun observeUser(userId: String): Flow<Result<UserProfile>> = flow {
-        try {
-            val user = apiService.getUser(userId)
-            emit(Result.Success(user))
-        } catch (e: Exception) {
-            emit(Result.Error(e))
+    actual override fun observeUser(userId: String): Flow<Result<UserProfile>> {
+        return flow {
+            try {
+                val user = apiService.getUser(userId)
+                emit(Result.Success(user))
+            } catch (e: Exception) {
+                emit(Result.Error(e))
+            }
         }
     }
 }

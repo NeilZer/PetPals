@@ -1,10 +1,8 @@
 
-package com.petpals.shared.platform
+package com.petpals.shared.src.platform
 
-import com.petpals.shared.util.LatLng
-import com.petpals.shared.core.Result
-import platform.CoreLocation.*
-import platform.Foundation.NSError
+import com.petpals.shared.src.util.LatLng
+import com.petpals.shared.src.core.Result
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

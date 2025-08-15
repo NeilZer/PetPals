@@ -1,4 +1,4 @@
-package com.petpals.shared.platform
+package com.petpals.shared.src.platform
 
 class IOSPlatform: Platform {
     override val name: String = "iOS ${platform.UIKit.UIDevice.currentDevice.systemVersion}"

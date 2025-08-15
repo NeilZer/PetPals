@@ -14,11 +14,11 @@ data class LatLng(
     fun distanceTo(other: LatLng): Double {
         val earthRadius = 6371.0 // Earth's radius in kilometers
 
-        val dLat = Math.toRadians(other.latitude - latitude)
-        val dLng = Math.toRadians(other.longitude - longitude)
+        val dLat = (other.latitude - latitude) * PI / 180.0
+        val dLng = (other.longitude - longitude) * PI / 180.0
 
         val a = sin(dLat / 2) * sin(dLat / 2) +
-                cos(Math.toRadians(latitude)) * cos(Math.toRadians(other.latitude)) *
+                cos(latitude * PI / 180.0) * cos(other.latitude * PI / 180.0) *
                 sin(dLng / 2) * sin(dLng / 2)
 
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))

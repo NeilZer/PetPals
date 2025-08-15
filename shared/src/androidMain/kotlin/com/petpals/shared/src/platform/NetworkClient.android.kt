@@ -1,4 +1,3 @@
-
 package com.petpals.shared.src.platform
 
 import android.Manifest
@@ -14,11 +13,20 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 actual class NetworkClient actual constructor() {
-    actual fun httpClient(): HttpClient = HttpClient(Android) {
+
+    private val client: HttpClient = HttpClient(Android) {
         install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys = true; isLenient = true })
+            json(Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+                prettyPrint = false
+            })
         }
     }
+
+    actual fun httpClient(): HttpClient = client
+
+    actual fun getHttpClient(): HttpClient = client
 
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     actual suspend fun isNetworkAvailable(): Boolean {

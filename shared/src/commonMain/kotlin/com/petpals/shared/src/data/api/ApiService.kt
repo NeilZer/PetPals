@@ -1,32 +1,48 @@
-
 package com.petpals.shared.src.data.api
 
 import com.petpals.shared.src.model.Post
-import com.petpals.shared.src.model.*
-import com.petpals.shared.src.platform.NetworkClient
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import com.petpals.shared.src.model.UserProfile
+import com.petpals.shared.src.model.Comment
+import com.petpals.shared.src.model.MapUserMarker
+import com.petpals.shared.src.model.MapPostMarker
+import com.petpals.shared.src.util.LatLng
 
-class ApiService(private val client: NetworkClient = NetworkClient()) {
-    companion object {
-        const val BASE_URL = "https://api.example.com"
-    }
+expect class ApiService {
+    // Auth API
+    suspend fun signUp(email: String, password: String): String
+    suspend fun signIn(email: String, password: String): String
+    suspend fun signOut()
+    suspend fun getCurrentUserId(): String?
+    suspend fun sendEmailVerification()
+    suspend fun isEmailVerified(): Boolean
+    suspend fun sendPasswordResetEmail(email: String)
 
-    suspend fun getCurrentUser(): UserProfile = client.httpClient().get("$BASE_URL/users/me").body()
-    suspend fun getUser(userId: String): UserProfile = client.httpClient().get("$BASE_URL/users/$userId").body()
-    suspend fun getFollowers(userId: String): List<UserProfile> = client.httpClient().get("$BASE_URL/users/$userId/followers").body()
-    suspend fun getFollowing(userId: String): List<UserProfile> = client.httpClient().get("$BASE_URL/users/$userId/following").body()
+    // Posts API
+    suspend fun getPosts(): List<Post>
+    suspend fun getPostById(postId: String): Post
+    suspend fun createPost(post: Post): Post
+    suspend fun generatePostId(): String
+    suspend fun likePost(postId: String, userId: String)
+    suspend fun unlikePost(postId: String, userId: String)
+    suspend fun toggleLike(postId: String, userId: String)
+    suspend fun deletePost(postId: String)
+    suspend fun getNearbyPosts(location: LatLng, radiusKm: Double): List<MapPostMarker>
 
-    suspend fun getFeed(): List<Post> = client.httpClient().get("$BASE_URL/feed").body()
+    // Users API
+    suspend fun getCurrentUser(): UserProfile
+    suspend fun getUser(userId: String): UserProfile
+    suspend fun updateUser(user: UserProfile): UserProfile
+    suspend fun saveUserProfile(userId: String, name: String, age: Int, breed: String, imageUrl: String)
+    suspend fun updateUserLocation(userId: String, location: LatLng)
+    suspend fun getNearbyUsers(location: LatLng, radiusKm: Double): List<MapUserMarker>
+    suspend fun followUser(userId: String)
+    suspend fun unfollowUser(userId: String)
+    suspend fun getFollowers(userId: String): List<UserProfile>
+    suspend fun getFollowing(userId: String): List<UserProfile>
 
-    suspend fun createPost(post: Post): Post = client.httpClient().post("$BASE_URL/posts") {
-        contentType(ContentType.Application.Json); setBody(post)
-    }.body()
-
-    suspend fun likePost(postId: String, userId: String) {
-        client.httpClient().post("$BASE_URL/posts/$postId/like") {
-            contentType(ContentType.Application.Json); setBody(mapOf("userId" to userId))
-        }
-    }
+    // Comments API
+    suspend fun getComments(postId: String): List<Comment>
+    suspend fun addComment(comment: Comment): Comment
+    suspend fun addCommentToPost(postId: String, userId: String, text: String)
+    suspend fun deleteComment(postId: String, commentId: String)
 }

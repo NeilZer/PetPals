@@ -1,5 +1,5 @@
 
-package com.petpals.shared.util
+package com.petpals.shared.src.util
 
 actual object ValidationHelper {
     actual fun validatePetName(name: String): String? {

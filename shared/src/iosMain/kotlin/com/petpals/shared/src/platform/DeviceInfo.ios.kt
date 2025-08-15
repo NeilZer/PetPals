@@ -1,9 +1,5 @@
 
-package com.petpals.shared.platform
-
-import platform.UIKit.UIDevice
-import platform.UIKit.UIScreen
-import platform.Foundation.NSBundle
+package com.petpals.shared.src.platform
 
 actual class DeviceInfo {
     actual val platform: String = "iOS"

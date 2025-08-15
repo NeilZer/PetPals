@@ -1,13 +1,8 @@
 
-package com.petpals.shared.util
-
-import platform.UIKit.UIImpactFeedbackGenerator
-import platform.UIKit.UINotificationFeedbackGenerator
-import platform.UIKit.UISelectionFeedbackGenerator
-import platform.UIKit.UIImpactFeedbackStyle
+package com.petpals.shared.src.util
 
 actual object HapticFeedback {
-    actual fun impact(intensity: HapticIntensity) {
+    fun impact(intensity: HapticIntensity) {
         val style = when (intensity) {
             HapticIntensity.LIGHT -> UIImpactFeedbackStyle.UIImpactFeedbackStyleLight
             HapticIntensity.MEDIUM -> UIImpactFeedbackStyle.UIImpactFeedbackStyleMedium
@@ -17,7 +12,7 @@ actual object HapticFeedback {
         generator.impactOccurred()
     }
 
-    actual fun notification(type: NotificationType) {
+    fun notification(type: NotificationType) {
         val generator = UINotificationFeedbackGenerator()
         val feedbackType = when (type) {
             NotificationType.SUCCESS -> platform.UIKit.UINotificationFeedbackType.UINotificationFeedbackTypeSuccess

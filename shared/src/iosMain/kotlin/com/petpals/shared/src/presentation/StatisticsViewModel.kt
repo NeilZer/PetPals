@@ -1,15 +1,14 @@
 
-package com.petpals.shared.presentation
-
-import com.petpals.shared.domain.repository.IStatisticsRepository
-import com.petpals.shared.domain.repository.StatisticsData
-import com.petpals.shared.domain.model.Achievement
-import com.petpals.shared.domain.model.AchievementFactory
-import com.petpals.shared.util.ChartHelper
-import com.petpals.shared.core.Result
+package com.petpals.shared.src.presentation
+import com.petpals.shared.src.core.Result
+import com.petpals.shared.src.domain.repository.IStatisticsRepository
+import com.petpals.shared.src.domain.model.Achievement
+import com.petpals.shared.src.domain.model.AchievementFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.petpals.shared.src.util.ChartHelper
+
 
 /**
  * ViewModel for statistics screen on iOS
@@ -56,6 +55,8 @@ class StatisticsViewModel(
             is Result.Error -> {
                 _error.value = result.exception.message ?: "Unknown error occurred"
             }
+
+            Result.Loading -> TODO()
         }
 
         _isLoading.value = false
@@ -65,12 +66,12 @@ class StatisticsViewModel(
         loadStatistics(userId)
     }
 
-    private fun calculateStreakDays(monthlyStats: List<com.petpals.shared.model.MonthlyStats>): Int {
+    private fun calculateStreakDays(monthlyStats: List<com.petpals.shared.src.model.MonthlyStats>): Int {
         // Simple streak calculation - in real app would be more sophisticated
         return monthlyStats.lastOrNull()?.activeDays ?: 0
     }
 
-    private fun findMostActiveDay(monthlyStats: List<com.petpals.shared.model.MonthlyStats>): String {
+    private fun findMostActiveDay(monthlyStats: List<com.petpals.shared.src.model.MonthlyStats>): String {
         // Mock implementation - in real app would analyze actual posting patterns
         val days = listOf("ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת")
         return days.random()
@@ -82,7 +83,7 @@ data class StatisticsUiState(
     val totalLikes: Int = 0,
     val totalDistance: Double = 0.0,
     val activeDaysThisMonth: Int = 0,
-    val monthlyStats: List<com.petpals.shared.model.MonthlyStats> = emptyList(),
+    val monthlyStats: List<com.petpals.shared.src.model.MonthlyStats> = emptyList(),
     val achievements: List<Achievement> = emptyList(),
     val averageLikesPerPost: Double = 0.0,
     val streakDays: Int = 0,

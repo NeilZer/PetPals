@@ -1,7 +1,5 @@
 
-package com.petpals.shared.util
-
-import platform.Foundation.*
+package com.petpals.shared.src.util
 
 actual class DateFormatter {
 

@@ -1,5 +1,5 @@
 
-package com.petpals.shared.util
+package com.petpals.shared.src.util
 
 /**
  * Helper for localization on iOS platform

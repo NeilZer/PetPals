@@ -1,78 +1,84 @@
 
-package com.petpals.shared.data.api
+package com.petpals.shared.src.data.api
 
-import com.petpals.shared.model.*
-import com.petpals.shared.util.LatLng
-import com.petpals.shared.util.Time
+import com.petpals.shared.src.model.*
+import com.petpals.shared.src.util.LatLng
+import com.petpals.shared.src.util.Time
+import io.ktor.client.HttpClient
+
 import kotlinx.coroutines.delay
 
-actual class ApiServiceImpl : ApiService {
+actual class ApiService(httpClient: HttpClient) {
 
     // Mock data for development
     private val mockUsers = mutableMapOf<String, UserProfile>()
     private val mockPosts = mutableMapOf<String, Post>()
     private val mockComments = mutableMapOf<String, MutableList<Comment>>()
 
-    actual override suspend fun signUp(email: String, password: String): String {
+    actual suspend fun signUp(email: String, password: String): String {
         delay(1000) // Simulate network delay
-        val userId = "user_${System.currentTimeMillis()}"
+        val userId = "user_${Time.nowMillis()}"
         return userId
     }
 
-    actual override suspend fun signIn(email: String, password: String): String {
+    actual suspend fun signIn(email: String, password: String): String {
         delay(1000)
         return "current_user_id"
     }
 
-    actual override suspend fun signOut() {
+    actual suspend fun signOut() {
         delay(500)
     }
 
-    actual override suspend fun getCurrentUserId(): String? {
+    actual suspend fun getCurrentUserId(): String? {
         return "current_user_id"
     }
 
-    actual override suspend fun sendEmailVerification() {
+    actual suspend fun sendEmailVerification() {
         delay(1000)
     }
 
-    actual override suspend fun isEmailVerified(): Boolean {
+    actual suspend fun isEmailVerified(): Boolean {
         return true
     }
 
-    actual override suspend fun sendPasswordResetEmail(email: String) {
+    actual suspend fun sendPasswordResetEmail(email: String) {
         delay(1000)
     }
 
-    actual override suspend fun getCurrentUser(): UserProfile {
+    actual suspend fun getCurrentUser(): UserProfile {
         delay(500)
         return mockUsers["current_user_id"] ?: UserProfile(
-            userId = "current_user_id",
+            id = "current_user_id",
+            email = "test@example.com",
+            displayName = "בובי",
             petName = "בובי",
-            age = 3,
-            breed = "לברדור",
-            imageUrl = ""
+            petAge = 3,
+            petBreed = "לברדור",
+            petImage = ""
         )
     }
 
-    actual override suspend fun getUser(userId: String): UserProfile {
+    actual suspend fun getUser(userId: String): UserProfile {
         delay(500)
         return mockUsers[userId] ?: UserProfile(
-            userId = userId,
+            id = userId,
+            email = "pet@example.com",
+            displayName = "חיית מחמד",
             petName = "חיית מחמד",
-            age = 2,
-            breed = "מעורב",
-            imageUrl = ""
+            petAge = 2,
+            petBreed = "מעורב",
+            petImage = ""
         )
     }
 
-    actual override suspend fun updateUser(user: UserProfile): UserProfile {
+    actual suspend fun updateUser(user: UserProfile): UserProfile {
         delay(1000)
-        mockUsers[user.userId] = user
+        mockUsers[user.id] = user
         return user
     }
 
-    actual override suspend fun saveUserProfile(
+    actual suspend fun saveUserProfile(
         userId: String,
         name: String,
         age: Int,
@@ -81,81 +87,87 @@ actual class ApiServiceImpl : ApiService {
     ) {
         delay(1000)
         mockUsers[userId] = UserProfile(
-            userId = userId,
+            id = userId,
+            displayName = name,
             petName = name,
-            age = age,
-            breed = breed,
-            imageUrl = imageUrl
+            petAge = age,
+            petBreed = breed,
+            petImage = imageUrl
         )
     }
 
-    actual override suspend fun updateUserLocation(userId: String, location: LatLng) {
+    actual suspend fun updateUserLocation(userId: String, location: LatLng) {
         delay(500)
         // Update user location in mock data
     }
 
-    actual override suspend fun getNearbyUsers(
-        currentLocation: LatLng,
+    actual suspend fun getNearbyUsers(
+        location: LatLng,
         radiusKm: Double
     ): List<MapUserMarker> {
         delay(1000)
         return listOf(
             MapUserMarker(
+                id = "user1",
                 userId = "user1",
+                displayName = "מקס",
                 petName = "מקס",
-                location = LatLng(32.0853, 34.7818),
                 imageUrl = "",
-                distance = 1.2
+                lat = 32.0853,
+                lng = 34.7818,
+                distanceKm = 1.2
             ),
             MapUserMarker(
+                id = "user2",
                 userId = "user2",
+                displayName = "לונה",
                 petName = "לונה",
-                location = LatLng(32.0863, 34.7828),
                 imageUrl = "",
-                distance = 0.8
+                lat = 32.0863,
+                lng = 34.7828,
+                distanceKm = 0.8
             )
         )
     }
 
-    actual override suspend fun followUser(userId: String) {
+    actual suspend fun followUser(userId: String) {
         delay(500)
     }
 
-    actual override suspend fun unfollowUser(userId: String) {
+    actual suspend fun unfollowUser(userId: String) {
         delay(500)
     }
 
-    actual override suspend fun getFollowers(userId: String): List<UserProfile> {
-        delay(500)
-        return emptyList()
-    }
-
-    actual override suspend fun getFollowing(userId: String): List<UserProfile> {
+    actual suspend fun getFollowers(userId: String): List<UserProfile> {
         delay(500)
         return emptyList()
     }
 
-    actual override suspend fun createPost(post: Post): Post {
+    actual suspend fun getFollowing(userId: String): List<UserProfile> {
+        return emptyList()
+    }
+
+    actual suspend fun createPost(post: Post): Post {
         delay(1000)
         mockPosts[post.postId] = post
         return post
     }
 
-    actual override suspend fun generatePostId(): String {
-        return "post_${System.currentTimeMillis()}"
+    actual suspend fun generatePostId(): String {
+        return "post_${Time.nowMillis()}"
     }
 
-    actual override suspend fun getPosts(): List<Post> {
+    actual suspend fun getPosts(): List<Post> {
         delay(1000)
         return mockPosts.values.toList().sortedByDescending { it.timestamp }
     }
 
-    actual override suspend fun getPostById(postId: String): Post {
+    actual suspend fun getPostById(postId: String): Post {
         delay(500)
         return mockPosts[postId] ?: throw Exception("Post not found")
     }
 
-    actual override suspend fun likePost(postId: String, userId: String) {
+    actual suspend fun likePost(postId: String, userId: String) {
         delay(500)
         mockPosts[postId]?.let { post ->
             val updatedLikedBy = post.likedBy.toMutableList()
@@ -169,7 +181,7 @@ actual class ApiServiceImpl : ApiService {
         }
     }
 
-    actual override suspend fun unlikePost(postId: String, userId: String) {
+    actual suspend fun unlikePost(postId: String, userId: String) {
         delay(500)
         mockPosts[postId]?.let { post ->
             val updatedLikedBy = post.likedBy.toMutableList()
@@ -183,7 +195,7 @@ actual class ApiServiceImpl : ApiService {
         }
     }
 
-    actual override suspend fun toggleLike(postId: String, userId: String) {
+    actual suspend fun toggleLike(postId: String, userId: String) {
         delay(500)
         mockPosts[postId]?.let { post ->
             val updatedLikedBy = post.likedBy.toMutableList()
@@ -199,22 +211,22 @@ actual class ApiServiceImpl : ApiService {
         }
     }
 
-    actual override suspend fun deletePost(postId: String) {
+    actual suspend fun deletePost(postId: String) {
         delay(500)
         mockPosts.remove(postId)
     }
 
-    actual override suspend fun addComment(comment: Comment): Comment {
+    actual suspend fun addComment(comment: Comment): Comment {
         delay(500)
         val postComments = mockComments.getOrPut(comment.postId) { mutableListOf() }
         postComments.add(comment)
         return comment
     }
 
-    actual override suspend fun addCommentToPost(postId: String, userId: String, text: String) {
+    actual suspend fun addCommentToPost(postId: String, userId: String, text: String) {
         delay(500)
         val comment = Comment(
-            commentId = "comment_${System.currentTimeMillis()}",
+            commentId = "comment_${Time.nowMillis()}",
             postId = postId,
             userId = userId,
             text = text,
@@ -223,39 +235,53 @@ actual class ApiServiceImpl : ApiService {
         addComment(comment)
     }
 
-    actual override suspend fun getComments(postId: String): List<Comment> {
+    actual suspend fun getComments(postId: String): List<Comment> {
         delay(500)
         return mockComments[postId]?.sortedByDescending { it.timestamp } ?: emptyList()
     }
 
-    actual override suspend fun deleteComment(postId: String, commentId: String) {
+    actual suspend fun deleteComment(postId: String, commentId: String) {
         delay(500)
         mockComments[postId]?.removeAll { it.commentId == commentId }
     }
 
-    actual override suspend fun getNearbyPosts(
-        currentLocation: LatLng,
+    actual suspend fun getNearbyPosts(
+        location: LatLng,
         radiusKm: Double
     ): List<MapPostMarker> {
         delay(1000)
         return listOf(
             MapPostMarker(
+                id = "post1",
                 postId = "post1",
-                petName = "מקס",
-                location = LatLng(32.0853, 34.7818),
+                userId = "user1",
+                userName = "מקס",
+                userProfileImage = "",
+                title = "טיול בפארק",
                 description = "טיול בפארק",
                 imageUrl = "",
+                location = LatLng(32.0853, 34.7818),
                 timestamp = Time.getCurrentTimestamp(),
-                distance = 0.5
+                likesCount = 8,
+                commentsCount = 3,
+                petName = "מקס",
+                petBreed = "לברדור"
             ),
             MapPostMarker(
+                id = "post2",
                 postId = "post2",
-                petName = "לונה",
-                location = LatLng(32.0863, 34.7828),
+                userId = "user2",
+                userName = "לונה",
+                userProfileImage = "",
+                title = "משחק על החוף",
                 description = "משחק על החוף",
                 imageUrl = "",
+                location = LatLng(32.0863, 34.7828),
                 timestamp = Time.getCurrentTimestamp() - 3600,
-                distance = 1.2
+                likesCount = 12,
+                commentsCount = 5,
+                petName = "לונה",
+                petBreed = "גולדן רטריבר"
             )
         )
     }

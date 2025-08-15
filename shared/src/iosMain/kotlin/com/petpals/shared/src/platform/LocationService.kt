@@ -1,8 +1,8 @@
 
-package com.petpals.shared.platform
+package com.petpals.shared.src.platform
 
-import com.petpals.shared.core.Result
-import com.petpals.shared.util.LatLng
+import com.petpals.shared.src.core.Result
+import com.petpals.shared.src.util.LatLng
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

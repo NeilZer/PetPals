@@ -1,7 +1,7 @@
 
-package com.petpals.shared.util
+package com.petpals.shared.src.util
 
-import com.petpals.shared.model.MonthlyStats
+import com.petpals.shared.src.model.MonthlyStats
 
 /**
  * Helper class for chart data processing and formatting on iOS
@@ -35,16 +35,6 @@ object ChartHelper {
         )
     }
 
-    /**
-     * Formats distance values for display
-     */
-    fun formatDistance(distance: Double): String {
-        return when {
-            distance < 1.0 -> "${(distance * 1000).toInt()}m"
-            distance < 10.0 -> String.format("%.1fkm", distance)
-            else -> "${distance.toInt()}km"
-        }
-    }
 
     /**
      * Calculates average likes per post

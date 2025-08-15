@@ -1,5 +1,5 @@
 
-package com.petpals.shared.domain.model
+package com.petpals.shared.src.domain.model
 
 /**
  * Achievement model for iOS implementation

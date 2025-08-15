@@ -1,12 +1,10 @@
 
-package com.petpals.shared.util
+package com.petpals.shared.src.util
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import platform.Network.*
-import platform.dispatch.dispatch_get_main_queue
-import platform.dispatch.dispatch_async
+
 
 actual class NetworkManager {
     private val _isConnected = MutableStateFlow(true)
