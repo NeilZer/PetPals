@@ -1,0 +1,164 @@
+/* Profile */
+"profile.title" = "My Profile";
+"profile.my_posts" = "My Posts";
+"profile.settings" = "Settings";
+"profile.sign_out" = "Sign Out";
+"profile.pick_name" = "Pick a pet name";
+"profile.years" = "years";
+"profile.edit" = "Edit Profile";
+"profile.edit.title" = "Edit Profile";
+"profile.pet_name" = "Pet Name";
+"profile.pet_name.placeholder" = "Enter name";
+"profile.age" = "Age";
+"profile.breed" = "Breed";
+"profile.breed.placeholder" = "Enter breed";
+"profile.change_photo" = "Change Photo";
+"profile.stats.title" = "Statistics";
+"profile.stats.posts" = "Posts";
+"profile.stats.likes" = "Likes";
+"profile.stats.comments" = "Comments";
+"profile.stats.days_in_month" = "Days this month";
+"profile.error.enter_pet_name" = "Please enter your pet's name";
+"profile.error.save_failed" = "Failed to save profile";
+
+/* Settings */
+"settings.title" = "Settings";
+"settings.language" = "Language";
+"settings.notifications" = "Notifications";
+"settings.location_services" = "Location Services";
+"settings.choose_language" = "Choose a language";
+
+/* Support */
+"support.title" = "Support";
+"support.contact" = "Contact Us";
+"support.rate_app" = "Rate the App";
+
+/* Info */
+"info.title" = "Info";
+"info.app_version" = "App Version";
+
+/* General */
+"general.title" = "General";
+"language.hebrew" = "עברית";
+"language.english" = "English";
+
+/* Common */
+"common.close" = "Close";
+"common.cancel" = "Cancel";
+"common.save_changes" = "Save Changes";
+"common.save" = "Save";
+"common.delete" = "Delete";
+"common.post" = "Post";
+
+/* Network */
+"network.offline" = "No internet connection";
+
+/* Units */
+"unit.km" = "km";
+
+/* MapView */
+"map.title" = "Posts Map";
+"map.loading" = "Loading posts...";
+"map.radius_km" = "%d km";
+"map.my_location_accessibility" = "My location";
+"map.default_location_name" = "Post location";
+"map.searching_location" = "Searching for location...";
+
+/* MyPostsView */
+"myposts.title" = "My Posts";
+"myposts.loading" = "Loading your posts...";
+"myposts.empty.title" = "You haven't posted yet";
+"myposts.empty.subtitle" = "Start sharing special moments with your pet";
+"myposts.empty.cta" = "Create first post";
+"myposts.sort.newest" = "Newest";
+"myposts.sort.oldest"  = "Oldest";
+"myposts.sort.mostLiked" = "Most liked";
+"myposts.sorted_by" = "Sorted by:";
+"myposts.new_post" = "New Post";
+"myposts.stat.posts" = "Posts";
+"myposts.stat.total_likes" = "Total likes";
+"myposts.stat.avg_likes" = "Average likes";
+"myposts.delete.title" = "Delete Post";
+"myposts.delete.message" = "Are you sure you want to delete this post? This action cannot be undone.";
+
+/* Post performance */
+"myposts.performance.none" = "No likes";
+"myposts.performance.starting" = "Getting started";
+"myposts.performance.popular" = "Popular";
+"myposts.performance.star" = "Star";
+"myposts.performance.viral" = "Viral!";
+
+/* PostDetail / EditPost */
+"postdetail.title" = "Post Details";
+"editpost.title" = "Edit Post";
+"editpost.current_image" = "Current Image";
+"editpost.post_content" = "Post content";
+
+/* Errors (all-purpose) */
+"errors.post.empty" = "Please enter post text";
+"errors.post.save_failed" = "Failed to save post";
+"errors.post.publish_failed" = "Error publishing the post";
+"errors.camera.unavailable" = "Camera is not available on this device";
+"errors.location.denied" = "Location permission denied";
+"errors.image.load_failed" = "Unable to load the image";
+"errors.image.decode_failed" = "Failed to load image";
+"errors.image.compress_failed" = "Image compression failed";
+
+/* Statistics */
+"stats.title" = "Statistics";
+"stats.header" = "PetPals Statistics";
+"stats.loading" = "Loading data...";
+"stats.quick.posts" = "Posts";
+"stats.quick.likes" = "Likes";
+"stats.quick.comments" = "Comments";
+"stats.quick.distance" = "Distance";
+"stats.quick.active_days" = "Active days this month";
+"stats.quick.streak" = "Day streak";
+"stats.insights.title" = "Interesting insights";
+"stats.insights.avg_likes" = "Average likes per post";
+"stats.insights.most_active_day" = "Most active day";
+"stats.insights.favorite_location" = "Favorite place";
+"stats.monthly.title" = "Monthly activity";
+"stats.monthly.legend.posts" = "Posts";
+"stats.monthly.legend.likes" = "Likes";
+"stats.breakdown.title" = "Monthly breakdown";
+"stats.breakdown.active_days" = "Active days";
+"stats.breakdown.distance" = "Distance";
+"stats.achievements.title" = "Achievements";
+
+/* Feed */
+"feed.title" = "Feed";
+"feed.loading" = "Loading posts...";
+"feed.empty.title" = "Welcome to PetPals!";
+"feed.empty.subtitle" = "Start sharing special moments with your pets!";
+"feed.empty.cta" = "Create first post";
+"feed.delete.title" = "Delete post?";
+"feed.delete.message" = "Are you sure? This action cannot be undone.";
+"feed.user_default" = "User";
+"feed.comments" = "Comments";
+"feed.comments.empty" = "No comments yet";
+"feed.comments.placeholder" = "Add a comment";
+"feed.comment.delete.title" = "Delete comment";
+
+/* New Post */
+"newpost.title" = "New Post";
+"newpost.caption.label" = "What is your pet up to today?";
+"newpost.caption.placeholder" = "Caption (optional)";
+"newpost.media.title" = "Image";
+"newpost.pick.gallery" = "Gallery";
+"newpost.pick.camera" = "Take Photo";
+"newpost.location.title" = "Location";
+"newpost.include_location" = "Include location";
+"newpost.location.enable" = "Enable Location";
+"newpost.location.attached" = "Location attached ✓";
+"newpost.publishing" = "Publishing...";
+
+/* Achievements (items) */
+"פוסט ראשון" = "First post";
+"פרסמת את הפוסט הראשון שלך!" = "You published your first post!";
+"משתמש פעיל" = "Active user";
+"פרסמת 10 פוסטים" = "Posted 10 posts";
+"פוסטים פופולריים" = "Popular posts";
+"קיבלת 50 לייקים" = "Received 50 likes";
+"מטייל מקצועי" = "Pro walker";
+"הלכת יותר מ-50 ק\"מ" = "Walked more than 50 km";
