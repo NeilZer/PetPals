@@ -1,0 +1,164 @@
+/* Profile */
+"profile.title" = "הפרופיל שלי";
+"profile.my_posts" = "הפוסטים שלי";
+"profile.settings" = "הגדרות";
+"profile.sign_out" = "התנתק";
+"profile.pick_name" = "בחר שם לחיית המחמד";
+"profile.years" = "שנים";
+"profile.edit" = "ערוך פרופיל";
+"profile.edit.title" = "עריכת פרופיל";
+"profile.pet_name" = "שם חיית המחמד";
+"profile.pet_name.placeholder" = "הכנס שם";
+"profile.age" = "גיל";
+"profile.breed" = "גזע";
+"profile.breed.placeholder" = "הכנס גזע";
+"profile.change_photo" = "שנה תמונה";
+"profile.stats.title" = "סטטיסטיקות";
+"profile.stats.posts" = "פוסטים";
+"profile.stats.likes" = "לייקים";
+"profile.stats.comments" = "תגובות";
+"profile.stats.days_in_month" = "ימים בחודש";
+"profile.error.enter_pet_name" = "נא להכניס שם לחיית המחמד";
+"profile.error.save_failed" = "שגיאה בשמירת הפרופיל";
+
+/* Settings */
+"settings.title" = "הגדרות";
+"settings.language" = "שפה";
+"settings.notifications" = "התראות";
+"settings.location_services" = "שירותי מיקום";
+"settings.choose_language" = "בחר שפה";
+
+/* Support */
+"support.title" = "תמיכה";
+"support.contact" = "צור קשר";
+"support.rate_app" = "דרג את האפליקציה";
+
+/* Info */
+"info.title" = "מידע";
+"info.app_version" = "גרסת אפליקציה";
+
+/* General */
+"general.title" = "כללי";
+"language.hebrew" = "עברית";
+"language.english" = "English";
+
+/* Common */
+"common.close" = "סגור";
+"common.cancel" = "ביטול";
+"common.save_changes" = "שמור שינויים";
+"common.save" = "שמור";
+"common.delete" = "מחק";
+"common.post" = "פרסם";
+
+/* Network */
+"network.offline" = "אין חיבור לאינטרנט";
+
+/* Units */
+"unit.km" = "ק\"מ";
+
+/* MapView */
+"map.title" = "מפת פוסטים";
+"map.loading" = "טוען פוסטים...";
+"map.radius_km" = "%d ק\"מ";
+"map.my_location_accessibility" = "המיקום שלי";
+"map.default_location_name" = "מיקום הפוסט";
+"map.searching_location" = "מחפש מיקום...";
+
+/* MyPostsView */
+"myposts.title" = "הפוסטים שלי";
+"myposts.loading" = "טוען את הפוסטים שלך...";
+"myposts.empty.title" = "עדיין לא פרסמת פוסטים";
+"myposts.empty.subtitle" = "התחל לשתף את הרגעים המיוחדים עם חיית המחמד שלך";
+"myposts.empty.cta" = "צור פוסט ראשון";
+"myposts.sort.newest" = "החדשים ביותר";
+"myposts.sort.oldest"  = "הישנים ביותר";
+"myposts.sort.mostLiked" = "הכי אהובים";
+"myposts.sorted_by" = "מסודר לפי:";
+"myposts.new_post" = "פוסט חדש";
+"myposts.stat.posts" = "פוסטים";
+"myposts.stat.total_likes" = "לייקים כולל";
+"myposts.stat.avg_likes" = "ממוצע לייקים";
+"myposts.delete.title" = "מחק פוסט";
+"myposts.delete.message" = "האם אתה בטוח שברצונך למחוק את הפוסט? פעולה זו לא ניתנת לביטול.";
+
+/* Post performance */
+"myposts.performance.none" = "אין לייקים";
+"myposts.performance.starting" = "מתחיל טוב";
+"myposts.performance.popular" = "פופולרי";
+"myposts.performance.star" = "כוכב";
+"myposts.performance.viral" = "ויראלי!";
+
+/* PostDetail / EditPost */
+"postdetail.title" = "פרטי פוסט";
+"editpost.title" = "ערוך פוסט";
+"editpost.current_image" = "תמונה נוכחית";
+"editpost.post_content" = "תוכן הפוסט";
+
+/* Errors (all-purpose) */
+"errors.post.empty" = "נא להכניס תוכן לפוסט";
+"errors.post.save_failed" = "שגיאה בשמירת הפוסט";
+"errors.post.publish_failed" = "שגיאה בפרסום הפוסט";
+"errors.camera.unavailable" = "המצלמה אינה זמינה במכשיר זה";
+"errors.location.denied" = "אין הרשאת מיקום bespre";
+"errors.image.load_failed" = "לא ניתן לטעון את התמונה";
+"errors.image.decode_failed" = "כשל בטעינת תמונה";
+"errors.image.compress_failed" = "כשל בדחיסת תמונה";
+
+/* Statistics */
+"stats.title" = "סטטיסטיקות";
+"stats.header" = "סטטיסטיקות PetPals";
+"stats.loading" = "טוען נתונים...";
+"stats.quick.posts" = "פוסטים";
+"stats.quick.likes" = "לייקים";
+"stats.quick.comments" = "תגובות";
+"stats.quick.distance" = "מרחק";
+"stats.quick.active_days" = "ימים פעילים החודש";
+"stats.quick.streak" = "רצף ימים";
+"stats.insights.title" = "תובנות מעניינות";
+"stats.insights.avg_likes" = "ממוצע לייקים לפוסט";
+"stats.insights.most_active_day" = "היום הכי פעיל";
+"stats.insights.favorite_location" = "מקום מועדף";
+"stats.monthly.title" = "פעילות חודשית";
+"stats.monthly.legend.posts" = "פוסטים";
+"stats.monthly.legend.likes" = "לייקים";
+"stats.breakdown.title" = "פירוט חודשי";
+"stats.breakdown.active_days" = "ימים פעילים";
+"stats.breakdown.distance" = "מרחק";
+"stats.achievements.title" = "הישגים";
+
+/* Feed */
+"feed.title" = "פיד";
+"feed.loading" = "טוען פוסטים...";
+"feed.empty.title" = "ברוכים הבאים ל-PetPals!";
+"feed.empty.subtitle" = "התחילו לשתף את הרגעים המיוחדים עם חיות המחמד שלכם!";
+"feed.empty.cta" = "צור פוסט ראשון";
+"feed.delete.title" = "למחוק את הפוסט?";
+"feed.delete.message" = "האם את/ה בטוח/ה? פעולה זו לא ניתנת לביטול.";
+"feed.user_default" = "משתמש";
+"feed.comments" = "תגובות";
+"feed.comments.empty" = "אין תגובות עדיין";
+"feed.comments.placeholder" = "הוסף תגובה";
+"feed.comment.delete.title" = "מחק תגובה";
+
+/* New Post */
+"newpost.title" = "פוסט חדש";
+"newpost.caption.label" = "מה חיית המחמד שלך עושה היום?";
+"newpost.caption.placeholder" = "כיתוב (אופציונלי)";
+"newpost.media.title" = "תמונה";
+"newpost.pick.gallery" = "גלריה";
+"newpost.pick.camera" = "צלם עכשיו";
+"newpost.location.title" = "מיקום";
+"newpost.include_location" = "כלול מיקום";
+"newpost.location.enable" = "הפעל מיקום";
+"newpost.location.attached" = "מיקום נוסף לפוסט ✓";
+"newpost.publishing" = "מפרסם...";
+
+/* Achievements (items) */
+"פוסט ראשון" = "פוסט ראשון";
+"פרסמת את הפוסט הראשון שלך!" = "פרסמת את הפוסט הראשון שלך!";
+"משתמש פעיל" = "משתמש פעיל";
+"פרסמת 10 פוסטים" = "פרסמת 10 פוסטים";
+"פוסטים פופולריים" = "פוסטים פופולריים";
+"קיבלת 50 לייקים" = "קיבלת 50 לייקים";
+"מטייל מקצועי" = "מטייל מקצועי";
+"הלכת יותר מ-50 ק\"מ" = "הלכת יותר מ-50 ק\"מ";
