@@ -1,0 +1,23 @@
+﻿# ---- Gradle/Build ----
+.gradle/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# ---- Android Studio/IntelliJ ----
+.idea/
+*.iml
+
+# ---- Local configs ----
+local.properties
+androidApp/google-services.json
+
+# ---- OS junk ----
+.DS_Store
+Thumbs.db
+
+# ---- Kotlin/Java ----
+*.log
+
+# ---- Fastlane/keystore (אם יש) ----
+*.jks
+*.keystore
